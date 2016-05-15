@@ -39,7 +39,7 @@ public class J2VEnv {
     cur_class = null;
   }
 
-  void addMember(String member_name) {
+  void pushMember(String member_name) {
     if (cur_class == null) {
       J2VError.throwError("Did not previously initialize class before adding member"); 
     }
@@ -47,7 +47,7 @@ public class J2VEnv {
     cur_class.size += 4;
   }
 
-  void addMethod(String method_name) {
+  void pushMethod(String method_name) {
     if (cur_class == null) {
       J2VError.throwError("Did not previously initialize class before adding method"); 
     }
