@@ -4,7 +4,7 @@ import syntaxtree.*;
 import visitor.*;
 import java.util.*;
 
-public class J2VParser extends GJNoArguDepthFirst<String> {
+public class J2VParser extends GJNoArguDepthFirst<Integer> {
 
   J2VEnv env;
 
@@ -14,8 +14,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
   //
   // Auto class visitors--probably don't need to be overridden.
   //
-  public String visit(NodeList n) {
-    String _ret=null;
+  public Integer visit(NodeList n) {
+    Integer _ret=null;
     int _count=0;
     for ( Enumeration<Node> e = n.elements(); e.hasMoreElements(); ) {
       e.nextElement().accept(this);
@@ -24,9 +24,9 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
     return _ret;
   }
 
-  public String visit(NodeListOptional n) {
+  public Integer visit(NodeListOptional n) {
     if ( n.present() ) {
-      String _ret=null;
+      Integer _ret=null;
       int _count=0;
       for ( Enumeration<Node> e = n.elements(); e.hasMoreElements(); ) {
         e.nextElement().accept(this);
@@ -38,15 +38,15 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
       return null;
   }
 
-  public String visit(NodeOptional n) {
+  public Integer visit(NodeOptional n) {
     if ( n.present() )
       return n.node.accept(this);
     else
       return null;
   }
 
-  public String visit(NodeSequence n) {
-    String _ret=null;
+  public Integer visit(NodeSequence n) {
+    Integer _ret=null;
     int _count=0;
     for ( Enumeration<Node> e = n.elements(); e.hasMoreElements(); ) {
       e.nextElement().accept(this);
@@ -55,7 +55,7 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
     return _ret;
   }
 
-  public String visit(NodeToken n) { return null; }
+  public Integer visit(NodeToken n) { return null; }
 
   //
   // User-generated visitor methods below
@@ -66,8 +66,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f1 -> ( TypeDeclaration() )*
    * f2 -> <EOF>
    */
-  public String visit(Goal n) {
-    String _ret=null;
+  public Integer visit(Goal n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -94,8 +94,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f16 -> "}"
    * f17 -> "}"
    */
-  public String visit(MainClass n) {
-    String _ret=null;
+  public Integer visit(MainClass n) {
+    Integer _ret=null;
     
     stmtMethodParamStart("main");
     stmtMethodParamEnd(); 
@@ -126,8 +126,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f0 -> ClassDeclaration()
    *       | ClassExtendsDeclaration()
    */
-  public String visit(TypeDeclaration n) {
-    String _ret=null;
+  public Integer visit(TypeDeclaration n) {
+    Integer _ret=null;
     n.f0.accept(this);
     return _ret;
   }
@@ -140,8 +140,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f4 -> ( MethodDeclaration() )*
    * f5 -> "}"
    */
-  public String visit(ClassDeclaration n) {
-    String _ret=null;
+  public Integer visit(ClassDeclaration n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -161,8 +161,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f6 -> ( MethodDeclaration() )*
    * f7 -> "}"
    */
-  public String visit(ClassExtendsDeclaration n) {
-    String _ret=null;
+  public Integer visit(ClassExtendsDeclaration n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -179,8 +179,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f1 -> Identifier()
    * f2 -> ";"
    */
-  public String visit(VarDeclaration n) {
-    String _ret=null;
+  public Integer visit(VarDeclaration n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -202,8 +202,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f11 -> ";"
    * f12 -> "}"
    */
-  public String visit(MethodDeclaration n) {
-    String _ret=null;
+  public Integer visit(MethodDeclaration n) {
+    Integer _ret=null;
 
     System.out.println("");
     //String method_name = n.f2.accept(this);
@@ -225,8 +225,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f0 -> FormalParameter()
    * f1 -> ( FormalParameterRest() )*
    */
-  public String visit(FormalParameterList n) {
-    String _ret=null;
+  public Integer visit(FormalParameterList n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     return _ret;
@@ -236,8 +236,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f0 -> Type()
    * f1 -> Identifier()
    */
-  public String visit(FormalParameter n) {
-    String _ret=null;
+  public Integer visit(FormalParameter n) {
+    Integer _ret=null;
     //String parameter_name = n.f1.accept(this);
     String parameter_name = n.f1.f0.toString();
 
@@ -250,8 +250,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f0 -> ","
    * f1 -> FormalParameter()
    */
-  public String visit(FormalParameterRest n) {
-    String _ret=null;
+  public Integer visit(FormalParameterRest n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     return _ret;
@@ -263,8 +263,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    *       | IntegerType()
    *       | Identifier()
    */
-  public String visit(Type n) {
-    String _ret=null;
+  public Integer visit(Type n) {
+    Integer _ret=null;
     n.f0.accept(this);
     return _ret;
   }
@@ -274,8 +274,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f1 -> "["
    * f2 -> "]"
    */
-  public String visit(ArrayType n) {
-    String _ret=null;
+  public Integer visit(ArrayType n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -285,8 +285,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
   /**
    * f0 -> "boolean"
    */
-  public String visit(BooleanType n) {
-    String _ret=null;
+  public Integer visit(BooleanType n) {
+    Integer _ret=null;
     n.f0.accept(this);
     return _ret;
   }
@@ -294,8 +294,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
   /**
    * f0 -> "int"
    */
-  public String visit(IntegerType n) {
-    String _ret=null;
+  public Integer visit(IntegerType n) {
+    Integer _ret=null;
     n.f0.accept(this);
     return _ret;
   }
@@ -308,8 +308,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    *       | WhileStatement()
    *       | PrintStatement()
    */
-  public String visit(Statement n) {
-    String _ret=null;
+  public Integer visit(Statement n) {
+    Integer _ret=null;
     n.f0.accept(this);
     return _ret;
   }
@@ -319,8 +319,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f1 -> ( Statement() )*
    * f2 -> "}"
    */
-  public String visit(Block n) {
-    String _ret=null;
+  public Integer visit(Block n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -333,8 +333,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f2 -> Expression()
    * f3 -> ";"
    */
-  public String visit(AssignmentStatement n) {
-    String _ret=null;
+  public Integer visit(AssignmentStatement n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -351,8 +351,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f5 -> Expression()
    * f6 -> ";"
    */
-  public String visit(ArrayAssignmentStatement n) {
-    String _ret=null;
+  public Integer visit(ArrayAssignmentStatement n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -372,8 +372,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f5 -> "else"
    * f6 -> Statement()
    */
-  public String visit(IfStatement n) {
-    String _ret=null;
+  public Integer visit(IfStatement n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -391,8 +391,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f3 -> ")"
    * f4 -> Statement()
    */
-  public String visit(WhileStatement n) {
-    String _ret=null;
+  public Integer visit(WhileStatement n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -408,8 +408,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f3 -> ")"
    * f4 -> ";"
    */
-  public String visit(PrintStatement n) {
-    String _ret=null;
+  public Integer visit(PrintStatement n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -429,8 +429,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    *       | MessageSend()
    *       | PrimaryExpression()
    */
-  public String visit(Expression n) {
-    String _ret=null;
+  public Integer visit(Expression n) {
+    Integer _ret=null;
     n.f0.accept(this);
     return _ret;
   }
@@ -440,8 +440,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f1 -> "&&"
    * f2 -> PrimaryExpression()
    */
-  public String visit(AndExpression n) {
-    String _ret=null;
+  public Integer visit(AndExpression n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -453,8 +453,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f1 -> "<"
    * f2 -> PrimaryExpression()
    */
-  public String visit(CompareExpression n) {
-    String _ret=null;
+  public Integer visit(CompareExpression n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f2.accept(this);
 
@@ -466,8 +466,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f1 -> "+"
    * f2 -> PrimaryExpression()
    */
-  public String visit(PlusExpression n) {
-    String _ret=null;
+  public Integer visit(PlusExpression n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -479,8 +479,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f1 -> "-"
    * f2 -> PrimaryExpression()
    */
-  public String visit(MinusExpression n) {
-    String _ret=null;
+  public Integer visit(MinusExpression n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -492,8 +492,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f1 -> "*"
    * f2 -> PrimaryExpression()
    */
-  public String visit(TimesExpression n) {
-    String _ret=null;
+  public Integer visit(TimesExpression n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -506,8 +506,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f2 -> PrimaryExpression()
    * f3 -> "]"
    */
-  public String visit(ArrayLookup n) {
-    String _ret=null;
+  public Integer visit(ArrayLookup n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -520,8 +520,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f1 -> "."
    * f2 -> "length"
    */
-  public String visit(ArrayLength n) {
-    String _ret=null;
+  public Integer visit(ArrayLength n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -536,8 +536,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f4 -> ( ExpressionList() )?
    * f5 -> ")"
    */
-  public String visit(MessageSend n) {
-    String _ret=null;
+  public Integer visit(MessageSend n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -551,8 +551,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f0 -> Expression()
    * f1 -> ( ExpressionRest() )*
    */
-  public String visit(ExpressionList n) {
-    String _ret=null;
+  public Integer visit(ExpressionList n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     return _ret;
@@ -562,8 +562,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f0 -> ","
    * f1 -> Expression()
    */
-  public String visit(ExpressionRest n) {
-    String _ret=null;
+  public Integer visit(ExpressionRest n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     return _ret;
@@ -580,8 +580,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    *       | NotExpression()
    *       | BracketExpression()
    */
-  public String visit(PrimaryExpression n) {
-    String _ret=null;
+  public Integer visit(PrimaryExpression n) {
+    Integer _ret=null;
     n.f0.accept(this);
     return _ret;
   }
@@ -589,8 +589,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
   /**
    * f0 -> <INTEGER_LITERAL>
    */
-  public String visit(IntegerLiteral n) {
-    String _ret=null;
+  public Integer visit(IntegerLiteral n) {
+    Integer _ret=null;
     n.f0.accept(this);
     return _ret;
   }
@@ -598,8 +598,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
   /**
    * f0 -> "true"
    */
-  public String visit(TrueLiteral n) {
-    String _ret=null;
+  public Integer visit(TrueLiteral n) {
+    Integer _ret=null;
     n.f0.accept(this);
     return _ret;
   }
@@ -607,8 +607,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
   /**
    * f0 -> "false"
    */
-  public String visit(FalseLiteral n) {
-    String _ret=null;
+  public Integer visit(FalseLiteral n) {
+    Integer _ret=null;
     n.f0.accept(this);
     return _ret;
   }
@@ -616,16 +616,16 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
   /**
    * f0 -> <IDENTIFIER>
    */
-  public String visit(Identifier n) {
-    String _ret=null;
+  public Integer visit(Identifier n) {
+    Integer _ret=null;
     return _ret;
   }
 
   /**
    * f0 -> "this"
    */
-  public String visit(ThisExpression n) {
-    String _ret=null;
+  public Integer visit(ThisExpression n) {
+    Integer _ret=null;
     n.f0.accept(this);
     return _ret;
   }
@@ -637,8 +637,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f3 -> Expression()
    * f4 -> "]"
    */
-  public String visit(ArrayAllocationExpression n) {
-    String _ret=null;
+  public Integer visit(ArrayAllocationExpression n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -653,8 +653,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f2 -> "("
    * f3 -> ")"
    */
-  public String visit(AllocationExpression n) {
-    String _ret=null;
+  public Integer visit(AllocationExpression n) {
+    Integer _ret=null;
     int counter = 0;
     //String class_name = n.f1.accept(this);
     String class_name = n.f1.f0.toString();
@@ -676,8 +676,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f0 -> "!"
    * f1 -> Expression()
    */
-  public String visit(NotExpression n) {
-    String _ret=null;
+  public Integer visit(NotExpression n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     return _ret;
@@ -688,8 +688,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    * f1 -> Expression()
    * f2 -> ")"
    */
-  public String visit(BracketExpression n) {
-    String _ret=null;
+  public Integer visit(BracketExpression n) {
+    Integer _ret=null;
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
