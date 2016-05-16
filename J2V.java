@@ -13,6 +13,7 @@ public class J2V {
       Node root = parser.Goal();
       J2VEnv env = new J2VEnv();
       root.accept(new J2VVisitor(env));
+      root.accept(new J2VParser(env));
       System.err.println("Vapor compilation successful");
     }
     catch (Exception e) {
