@@ -577,7 +577,9 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(PrimaryExpression n) {
     Integer _ret=null;
-    n.f0.accept(this);
+    _ret = n.f0.accept(this);
+    System.out.println("hi");
+    System.out.println(_ret);
     return _ret;
   }
 
@@ -586,7 +588,12 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(IntegerLiteral n) {
     Integer _ret=null;
-    n.f0.accept(this);
+
+    int ticket = obtainVarTicket();
+
+    stmtAssignment(ticket, n.f0.toString());
+
+    _ret = ticket;
     return _ret;
   }
 
@@ -595,7 +602,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(TrueLiteral n) {
     Integer _ret=null;
-    n.f0.accept(this);
+
+    int ticket = obtainVarTicket();
+    stmtAssignment(ticket, "1");
+    _ret = ticket;
     return _ret;
   }
 
@@ -604,7 +614,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(FalseLiteral n) {
     Integer _ret=null;
-    n.f0.accept(this);
+
+    int ticket = obtainVarTicket();
+    stmtAssignment(ticket, "0");
+    _ret = ticket;
     return _ret;
   }
 
@@ -650,20 +663,17 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(AllocationExpression n) {
     Integer _ret=null;
-    int counter = 0;
-    //String class_name = n.f1.accept(this);
+    int ticket = 0;
     String class_name = n.f1.f0.toString();
 
     J2VClassLayout class_layout = env.layout.get(class_name);
 
-    counter = obtainVarTicket();
+    ticket = obtainVarTicket();
 
-    stmtAssignment(counter, "HeapAllocZ(" + class_layout.size + ")");
-    stmtMemoryAccess(counter, ":vmt_" + class_layout.id);
-        /*
-    System.out.println(" = HeapAllocZ(" + class_layout.size + ")");
-    System.out.println(" = :vmt_" + class_layout.id);
-    */
+    stmtAssignment(ticket, "HeapAllocZ(" + class_layout.size + ")");
+    stmtMemoryAccess(ticket, ":vmt_" + class_layout.id);
+
+    _ret = ticket;
     return _ret;
   }
 
