@@ -15,6 +15,7 @@ public class J2VEnv {
   int indentation_level;
   int counter_var;
   int counter_label;
+  HashMap<String, Integer> variable_map;
   
   public J2VEnv() {
     layout = new HashMap<String, J2VClassLayout>();
@@ -24,6 +25,7 @@ public class J2VEnv {
     indentation_level = 0;
     counter_var = 0;
     counter_label = 0;
+    variable_map = null;
   }
 
   // Class Layout Stuff
@@ -109,6 +111,17 @@ public class J2VEnv {
   }
   /////////////////////////////
   /////////////////////////////
+  //Oh, how I do wish I could use my push pop notation for everything. ALAS!
+
+  void startParseClass(String class_name) {
+    cur_class = layout.get(class_name);
+    variable_map = new HashMap<String, Integer>();
+  }
+
+  void endParseClass() {
+    cur_class = null;
+    variable_map = null;
+  }
 }
 
 

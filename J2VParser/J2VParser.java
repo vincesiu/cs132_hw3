@@ -98,17 +98,19 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     Integer _ret=null;
 
     String class_name = n.f1.f0.toString();
-    env.cur_class = env.layout.get(class_name);
-    
+    env.startParseClass(class_name);
+
     stmtMethodParamStart(class_name, "main");
     stmtMethodParamEnd(); 
+
     pushIndentation();
 
     n.f14.accept(this);
     n.f15.accept(this);
 
     popIndentation();
-    env.cur_class = null;
+    env.endParseClass();
+
 
     return _ret;
   }
@@ -135,12 +137,12 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     Integer _ret=null;
 
     String class_name = n.f1.f0.toString();
-    env.cur_class = env.layout.get(class_name);
+    env.startParseClass(class_name);
 
     n.f3.accept(this);
     n.f4.accept(this);
 
-    env.cur_class = null;
+    env.endParseClass();
     return _ret;
   }
 
@@ -158,12 +160,12 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     Integer _ret=null;
 
     String class_name = n.f1.f0.toString();
-    env.cur_class = env.layout.get(class_name);
+    env.startParseClass(class_name);
 
     n.f5.accept(this);
     n.f6.accept(this);
 
-    env.cur_class = null;
+    env.endParseClass();
 
     return _ret;
   }
@@ -578,8 +580,8 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(PrimaryExpression n) {
     Integer _ret=null;
     _ret = n.f0.accept(this);
-    System.out.println("hi");
-    System.out.println(_ret);
+//    System.out.println("hi");
+//    System.out.println(_ret);
     return _ret;
   }
 
