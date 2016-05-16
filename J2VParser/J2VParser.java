@@ -206,7 +206,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
     String _ret=null;
 
     System.out.println("");
-    String method_name = n.f2.accept(this);
+    //String method_name = n.f2.accept(this);
+    String method_name = n.f2.f0.toString();
     stmtMethodParamStart(method_name);
     n.f4.accept(this);
     stmtMethodParamEnd();
@@ -237,7 +238,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    */
   public String visit(FormalParameter n) {
     String _ret=null;
-    String parameter_name = n.f1.accept(this);
+    //String parameter_name = n.f1.accept(this);
+    String parameter_name = n.f1.f0.toString();
 
     stmtMethodParamParameter(parameter_name);
 
@@ -454,8 +456,8 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
   public String visit(CompareExpression n) {
     String _ret=null;
     n.f0.accept(this);
-    n.f1.accept(this);
     n.f2.accept(this);
+
     return _ret;
   }
 
@@ -616,7 +618,6 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    */
   public String visit(Identifier n) {
     String _ret=null;
-    _ret = n.f0.toString();
     return _ret;
   }
 
@@ -655,13 +656,14 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
   public String visit(AllocationExpression n) {
     String _ret=null;
     int counter = 0;
-    String class_name = n.f1.accept(this);
+    //String class_name = n.f1.accept(this);
+    String class_name = n.f1.f0.toString();
 
     J2VClassLayout class_layout = env.layout.get(class_name);
 
-    counter = env.counter_var;
+    counter = obtainVarTicket();
 
-    stmtAssignment("HeapAllocZ(" + class_layout.size + ")");
+    stmtAssignment(counter, "HeapAllocZ(" + class_layout.size + ")");
     stmtMemoryAccess(counter, ":vmt_" + class_layout.id);
         /*
     System.out.println(" = HeapAllocZ(" + class_layout.size + ")");
@@ -718,15 +720,14 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
     env.indentation_level -= 1;
   }
 
-  void stmtAssignment(String rhs) {
+  void stmtAssignment(int lhs, String rhs) {
     if (rhs == null) {
       J2VError.throwError("Null rhs given to stmtAssignment function");
     }
     for (int i = 0; i < env.indentation_level; i++) {
       System.out.printf("  ");
     }
-    System.out.println("t." + env.counter_var + " = " + rhs);
-    env.counter_var += 1;
+    System.out.println("t." + String.valueOf(lhs) + " = " + rhs);
   }
 
   void stmtMemoryAccess(int lhs, String rhs) {
@@ -737,6 +738,16 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
       System.out.printf("  ");
     }
     System.out.println("[t." + String.valueOf(lhs) + "] = " + rhs);
+  }
+
+  int obtainVarTicket() {
+    env.counter_var += 1;
+    return env.counter_var - 1;
+  }
+
+  int obtainLabelTicket() {
+    env.counter_label += 1;
+    return env.counter_label - 1;
   }
 
 }
