@@ -13,9 +13,12 @@ public class J2VEnv {
   
   //Used only in second pass
   int indentation_level;
-  int counter_var;
+  int counter_id;
   int counter_label;
-  HashMap<String, Integer> variable_map;
+  int counter_temp;
+  int counter_var;
+  HashMap<Integer, VaporValue> variable_map;
+  HashMap<String, Integer> identifier_map;
   
   public J2VEnv() {
     layout = new HashMap<String, J2VClassLayout>();
@@ -23,9 +26,12 @@ public class J2VEnv {
     cur_class = null;
 
     indentation_level = 0;
-    counter_var = 0;
+    counter_id = 0;
     counter_label = 0;
+    counter_temp = 0;
+    counter_var = 0;
     variable_map = null;
+    identifier_map = null;
   }
 
   // Class Layout Stuff
@@ -112,16 +118,85 @@ public class J2VEnv {
   /////////////////////////////
   /////////////////////////////
   //Oh, how I do wish I could use my push pop notation for everything. ALAS!
+  //The following will be used in J2VParser
 
   void startParseClass(String class_name) {
     cur_class = layout.get(class_name);
-    variable_map = new HashMap<String, Integer>();
   }
 
   void endParseClass() {
     cur_class = null;
-    variable_map = null;
   }
+
+  void startParseMethod() {
+    variable_map = new HashMap<Integer, VaporValue>();
+    identifier_map = new HashMap<String, Integer>();
+    counter_var = 0;
+    counter_temp = 0;
+    counter_label = 0;
+  }
+
+  void endParseMethod() {
+    variable_map = null;
+    identifier_map = null;
+    counter_var = 0;
+    counter_temp = 0;
+    counter_label = 0;
+  }
+
+
+  //Methods to support environment variable operations
+  ///////////////////////
+
+  int obtainVarNumber() {
+    counter_var += 1;
+    return counter_var - 1;
+  }
+
+  int obtainTempNumber() {
+    counter_temp += 1;
+    return counter_temp - 1;
+  }
+
+  int obtainLabelNumber() {
+    counter_label += 1;
+    return counter_label - 1;
+  }
+
+  //Methods to handle the adding of new identifiers
+  ///////////////////
+  int newIdentifier(String identifier) {
+    int ticket = obtainVarNumber(); 
+    VaporValue v = new VaporValue(identifier);
+    variable_map.put(ticket, v);
+    identifier_map.put(identifier, ticket);
+    return ticket;
+  }
+  
+  int newTemporary() {
+    int ticket = obtainVarNumber();
+    int temp = obtainTempNumber();
+
+    VaporValue v = new VaporValue("t." + String.valueOf(temp)); 
+    variable_map.put(ticket, v);
+    return ticket;
+  }
+
+  int newLabel() {
+    int ticket = obtainVarNumber();
+    int temp = obtainLabelNumber();
+
+    VaporValue v = new VaporValue("control" + String.valueOf(temp));  
+    variable_map.put(ticket, v);
+    return ticket;
+  }
+
+  String getVariableFromEnv(int ticket) {
+    return variable_map.get(ticket).identifier;
+  }
+
+
+  //////////////////////
 }
 
 
@@ -134,4 +209,11 @@ class J2VClassLayout {
   Vector<String> function_list;
   HashMap<String, Integer> virtual_table;
   HashMap<String, Integer> member_offsets;
+}
+
+class VaporValue {
+  String identifier;
+  VaporValue(String input) {
+    identifier = input;
+  }
 }

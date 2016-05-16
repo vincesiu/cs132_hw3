@@ -99,6 +99,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
 
     String class_name = n.f1.f0.toString();
     env.startParseClass(class_name);
+    env.startParseMethod();
 
     stmtMethodParamStart(class_name, "main");
     stmtMethodParamEnd(); 
@@ -109,6 +110,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     n.f15.accept(this);
 
     popIndentation();
+    env.endParseMethod();
     env.endParseClass();
 
 
@@ -202,18 +204,21 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     Integer _ret=null;
 
     System.out.println("");
-    //String method_name = n.f2.accept(this);
     String method_name = n.f2.f0.toString();
     String class_name = env.cur_class.id;
+
+    env.startParseMethod();
     stmtMethodParamStart(class_name, method_name);
     n.f4.accept(this);
     stmtMethodParamEnd();
+
 
     pushIndentation();
     n.f7.accept(this);
     n.f8.accept(this);
     n.f10.accept(this);
     popIndentation();
+    env.endParseMethod();
 
     return _ret;
   }
@@ -235,7 +240,6 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(FormalParameter n) {
     Integer _ret=null;
-    //String parameter_name = n.f1.accept(this);
     String parameter_name = n.f1.f0.toString();
 
     stmtMethodParamParameter(parameter_name);
@@ -332,10 +336,16 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(AssignmentStatement n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
-    n.f3.accept(this);
+    String identifier = n.f0.f0.toString();
+    int ticket = env.newTemporary();
+//    env.variable_map.put(identifier, ticket);
+
+    Integer t = n.f2.accept(this);
+    Integer s = 3;
+    stmtAssignment(ticket, "UNIMPLEMENTED - ASSIGNMENT TO IDENTIFIER" + s); 
+
+    //TODO: implement after expression is done
+    
     return _ret;
   }
 
@@ -591,7 +601,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(IntegerLiteral n) {
     Integer _ret=null;
 
-    int ticket = obtainVarTicket();
+    int ticket = env.newTemporary(); 
 
     stmtAssignment(ticket, n.f0.toString());
 
@@ -605,7 +615,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(TrueLiteral n) {
     Integer _ret=null;
 
-    int ticket = obtainVarTicket();
+    int ticket = env.newTemporary(); 
     stmtAssignment(ticket, "1");
     _ret = ticket;
     return _ret;
@@ -617,7 +627,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(FalseLiteral n) {
     Integer _ret=null;
 
-    int ticket = obtainVarTicket();
+    int ticket = env.newTemporary(); 
     stmtAssignment(ticket, "0");
     _ret = ticket;
     return _ret;
@@ -670,7 +680,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
 
     J2VClassLayout class_layout = env.layout.get(class_name);
 
-    ticket = obtainVarTicket();
+    ticket = env.newTemporary(); 
 
     stmtAssignment(ticket, "HeapAllocZ(" + class_layout.size + ")");
     stmtMemoryAccess(ticket, ":vmt_" + class_layout.id);
@@ -713,12 +723,14 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   
   void stmtMethodParamParameter(String parameter_name) {
     System.out.printf(" " + parameter_name);
+//    env.addIdentifier(parameter_name);
   }
 
   void stmtMethodParamEnd() {
     System.out.printf(")\n");
   }
 
+  //////////////////////////////
   void pushIndentation() {
     env.indentation_level += 1;
   }
@@ -734,7 +746,8 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     for (int i = 0; i < env.indentation_level; i++) {
       System.out.printf("  ");
     }
-    System.out.println("t." + String.valueOf(lhs) + " = " + rhs);
+    System.out.println(env.getVariableFromEnv(lhs) +  " = " + rhs);
+ //   System.out.println("t." + String.valueOf(lhs) + " = " + rhs);
   }
 
   void stmtMemoryAccess(int lhs, String rhs) {
@@ -744,7 +757,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     for (int i = 0; i < env.indentation_level; i++) {
       System.out.printf("  ");
     }
-    System.out.println("[t." + String.valueOf(lhs) + "] = " + rhs);
+    System.out.println("[" + env.getVariableFromEnv(lhs) + "] = " + rhs);
   }
 
   int obtainVarTicket() {
