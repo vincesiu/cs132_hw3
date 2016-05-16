@@ -6,14 +6,24 @@ import java.util.*;
 
 public class J2VEnv {
     
+  //Used in first pass
   HashMap<String, J2VClassLayout> layout;
   Vector<String> list_classes;
   J2VClassLayout cur_class; 
+  
+  //Used only in second pass
+  int indentation_level;
+  int counter_var;
+  int counter_label;
   
   public J2VEnv() {
     layout = new HashMap<String, J2VClassLayout>();
     list_classes = new Vector<String>();
     cur_class = null;
+
+    indentation_level = 0;
+    counter_var = 0;
+    counter_label = 0;
   }
 
   // Class Layout Stuff

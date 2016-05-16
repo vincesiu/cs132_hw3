@@ -96,6 +96,10 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    */
   public String visit(MainClass n) {
     String _ret=null;
+    
+    stmtMethodParamStart("main");
+    stmtMethodParamEnd(); 
+    pushIndentation();
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -114,6 +118,7 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
     n.f15.accept(this);
     n.f16.accept(this);
     n.f17.accept(this);
+    popIndentation();
     return _ret;
   }
 
@@ -200,11 +205,18 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
   public String visit(MethodDeclaration n) {
     String _ret=null;
 
+    System.out.println("");
     String method_name = n.f2.accept(this);
+    stmtMethodParamStart(method_name);
     n.f4.accept(this);
+    stmtMethodParamEnd();
+
+    pushIndentation();
     n.f7.accept(this);
     n.f8.accept(this);
     n.f10.accept(this);
+    popIndentation();
+
     return _ret;
   }
 
@@ -225,8 +237,10 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    */
   public String visit(FormalParameter n) {
     String _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
+    String parameter_name = n.f1.accept(this);
+
+    stmtMethodParamParameter(parameter_name);
+
     return _ret;
   }
 
@@ -640,12 +654,19 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
    */
   public String visit(AllocationExpression n) {
     String _ret=null;
+    int counter = 0;
     String class_name = n.f1.accept(this);
 
     J2VClassLayout class_layout = env.layout.get(class_name);
+
+    counter = env.counter_var;
+
+    stmtAssignment("HeapAllocZ(" + class_layout.size + ")");
+    stmtMemoryAccess(counter, ":vmt_" + class_layout.id);
+        /*
     System.out.println(" = HeapAllocZ(" + class_layout.size + ")");
     System.out.println(" = :vmt_" + class_layout.id);
-
+    */
     return _ret;
   }
 
@@ -671,6 +692,51 @@ public class J2VParser extends GJNoArguDepthFirst<String> {
     n.f1.accept(this);
     n.f2.accept(this);
     return _ret;
+  }
+
+  void stmtMethodParamStart(String function_name) {
+    if (function_name.equals("main")) {
+      System.out.printf("func Main(");
+    } else {
+      System.out.printf("func " + function_name + "(this");
+    }
+  }
+  
+  void stmtMethodParamParameter(String parameter_name) {
+    System.out.printf(" " + parameter_name);
+  }
+
+  void stmtMethodParamEnd() {
+    System.out.printf(")\n");
+  }
+
+  void pushIndentation() {
+    env.indentation_level += 1;
+  }
+
+  void popIndentation() {
+    env.indentation_level -= 1;
+  }
+
+  void stmtAssignment(String rhs) {
+    if (rhs == null) {
+      J2VError.throwError("Null rhs given to stmtAssignment function");
+    }
+    for (int i = 0; i < env.indentation_level; i++) {
+      System.out.printf("  ");
+    }
+    System.out.println("t." + env.counter_var + " = " + rhs);
+    env.counter_var += 1;
+  }
+
+  void stmtMemoryAccess(int lhs, String rhs) {
+    if (rhs == null) {
+      J2VError.throwError("Null rhs given to stmtMemoryAccess function");
+    }
+    for (int i = 0; i < env.indentation_level; i++) {
+      System.out.printf("  ");
+    }
+    System.out.println("[t." + String.valueOf(lhs) + "] = " + rhs);
   }
 
 }
