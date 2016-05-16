@@ -96,29 +96,20 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(MainClass n) {
     Integer _ret=null;
+
+    String class_name = n.f1.f0.toString();
+    env.cur_class = env.layout.get(class_name);
     
-    stmtMethodParamStart("main");
+    stmtMethodParamStart(class_name, "main");
     stmtMethodParamEnd(); 
     pushIndentation();
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
-    n.f3.accept(this);
-    n.f4.accept(this);
-    n.f5.accept(this);
-    n.f6.accept(this);
-    n.f7.accept(this);
-    n.f8.accept(this);
-    n.f9.accept(this);
-    n.f10.accept(this);
-    n.f11.accept(this);
-    n.f12.accept(this);
-    n.f13.accept(this);
+
     n.f14.accept(this);
     n.f15.accept(this);
-    n.f16.accept(this);
-    n.f17.accept(this);
+
     popIndentation();
+    env.cur_class = null;
+
     return _ret;
   }
 
@@ -142,12 +133,14 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(ClassDeclaration n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
+
+    String class_name = n.f1.f0.toString();
+    env.cur_class = env.layout.get(class_name);
+
     n.f3.accept(this);
     n.f4.accept(this);
-    n.f5.accept(this);
+
+    env.cur_class = null;
     return _ret;
   }
 
@@ -163,14 +156,15 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(ClassExtendsDeclaration n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
-    n.f3.accept(this);
-    n.f4.accept(this);
+
+    String class_name = n.f1.f0.toString();
+    env.cur_class = env.layout.get(class_name);
+
     n.f5.accept(this);
     n.f6.accept(this);
-    n.f7.accept(this);
+
+    env.cur_class = null;
+
     return _ret;
   }
 
@@ -208,7 +202,8 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     System.out.println("");
     //String method_name = n.f2.accept(this);
     String method_name = n.f2.f0.toString();
-    stmtMethodParamStart(method_name);
+    String class_name = env.cur_class.id;
+    stmtMethodParamStart(class_name, method_name);
     n.f4.accept(this);
     stmtMethodParamEnd();
 
@@ -696,11 +691,11 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     return _ret;
   }
 
-  void stmtMethodParamStart(String function_name) {
+  void stmtMethodParamStart(String class_name, String function_name) {
     if (function_name.equals("main")) {
       System.out.printf("func Main(");
     } else {
-      System.out.printf("func " + function_name + "(this");
+      System.out.printf("func " + class_name + "." + function_name + "(this");
     }
   }
   
