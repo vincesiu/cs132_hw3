@@ -320,23 +320,32 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int ticket3 = env.getTemporary();
     int ticket4 = env.getTemporary();
     int ticket5 = env.getTemporary();
+    int ticket6 = env.getTemporary();
     int control1 = env.getLabel();
     
-    //ticket1 = a + b
+    //ticket1 = b * 4
     //ticket2 = [a]
-    //ticket3 = LtS(b ticket2) //b < ticket2
+    //ticket3 = LtS(ticket2 ticket1) //ticket2 < ticket1, ie theres something WONG if this is true
+    //ticket4 = ticket1 + a
     //if ticket3 goto: control1
-    //  Error("out of bounds access")
+    //  Error("Array out of bounds")
     //control1: 
-    //ticket3 = [ticket1 + 4]
+    //ticket5 = ticket4 + 4
+    //[ticket5] = c
     stmtAssignment(ticket1, "MulS(" + env.findVariableEnv(b) + " 4)");
-    stmtAssignment(ticket2, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(ticket1) + ")");
-    stmtAssignment(ticket3, "Add(" + env.findVariableEnv(ticket2) + " 4)");
-    stmtMemoryAssignment(ticket3, env.findVariableEnv(c));
-//TODO
+    stmtMemoryAccess(ticket2, env.findVariableEnv(a));
+    stmtAssignment(ticket3, "LtS(" + env.findVariableEnv(ticket2) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtAssignment(ticket4, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtIfGoto(ticket3, control1);
+    pushIndentation();
+    indentVapor();
+    System.out.println("Error(\"Array out of bounds\")");
+    popIndentation();
+    stmtLabel(control1);
+    stmtAssignment(ticket5, "Add(" + env.findVariableEnv(ticket4) + " 4)");
+    stmtMemoryAssignment(ticket5, env.findVariableEnv(c));
 
-
-    _ret = ticket4;
+    _ret = c;
   
 
 
@@ -551,9 +560,31 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int ticket1 = env.getTemporary();
     int ticket2 = env.getTemporary();
     int ticket3 = env.getTemporary();
+    int ticket4 = env.getTemporary();
+    int ticket5 = env.getTemporary();
+    int control1 = env.getLabel();
+       
 
+    //pseudocode
+    //ticket1 = b * 4
+    //ticket2 = a + ticket1
+    //ticket3 = [a]
+    //ticket4 = LtS(ticket3 ticket1) // ticket3 < ticket1, this is true if it isssss out of bounds
+    //if0 ticket4 goto: control1
+    //  Error("Array out of bounds")
+    //control1:
+    //ticket5 = [ticket2+4]
+    
     stmtAssignment(ticket1, "MulS(" + env.findVariableEnv(b) + " 4)");
     stmtAssignment(ticket2, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtMemoryAccess(ticket3, env.findVariableEnv(a));
+    stmtAssignment(ticket4, "LtS(" + env.findVariableEnv(ticket3) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtIfGoto(ticket4, control1);
+    pushIndentation();
+    indentVapor();
+    System.out.println("Error(\"Array out of bounds\")");
+    popIndentation();
+    stmtLabel(control1);
     stmtMemoryAccess(ticket3, env.findVariableEnv(ticket2) + "+4");
 
     _ret = ticket3;
