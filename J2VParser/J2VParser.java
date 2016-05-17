@@ -109,6 +109,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     n.f14.accept(this);
     n.f15.accept(this);
 
+
+    indentVapor();
+    System.out.println("ret");
+
     popIndentation();
     env.endParseMethod();
     env.endParseClass();
@@ -141,7 +145,6 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     String class_name = n.f1.f0.toString();
     env.startParseClass(class_name);
 
-    n.f3.accept(this);
     n.f4.accept(this);
 
     env.endParseClass();
@@ -164,7 +167,6 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     String class_name = n.f1.f0.toString();
     env.startParseClass(class_name);
 
-    n.f5.accept(this);
     n.f6.accept(this);
 
     env.endParseClass();
@@ -216,7 +218,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     pushIndentation();
     n.f7.accept(this);
     n.f8.accept(this);
-    n.f10.accept(this);
+    int a = n.f10.accept(this);
+    indentVapor();
+    System.out.println("ret " + env.findVariableEnv(a));
+
     popIndentation();
     env.endParseMethod();
 
@@ -241,7 +246,6 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(FormalParameter n) {
     Integer _ret=null;
     String parameter_name = n.f1.f0.toString();
-
     stmtMethodParamParameter(parameter_name);
 
     return _ret;

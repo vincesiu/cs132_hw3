@@ -10,6 +10,7 @@ public class J2VEnv {
   HashMap<String, J2VClassLayout> layout;
   Vector<String> list_classes;
   J2VClassLayout cur_class; 
+  String main_class;
   
   //Used only in second pass
   int indentation_level;
@@ -26,6 +27,7 @@ public class J2VEnv {
     layout = new HashMap<String, J2VClassLayout>();
     list_classes = new Vector<String>();
     cur_class = null;
+    main_class = null;
 
     indentation_level = 0;
     counter_id = 0;
@@ -51,6 +53,7 @@ public class J2VEnv {
 
     cur_class.member_offsets = new HashMap<String, Integer>();
     cur_class.virtual_table = new HashMap<String, Integer>();
+    cur_class.member_list = new Vector<String>();
     cur_class.function_list = new Vector<String>();
 
     list_classes.add(class_name);
@@ -68,8 +71,7 @@ public class J2VEnv {
     if (cur_class == null) {
       J2VError.throwError("Did not previously initialize class before adding member"); 
     }
-    cur_class.member_offsets.put(member_name, cur_class.size);
-    cur_class.size += 4;
+    cur_class.member_list.add(member_name);
   }
 
   void pushMethod(String method_name) {
@@ -78,6 +80,8 @@ public class J2VEnv {
     }
     cur_class.function_list.add(method_name);
   }
+
+
 
   int createVirtualTable(String method_name, HashMap<String, String> function_list, HashMap<String, Integer> virtual_table) {
     J2VClassLayout cur = layout.get(method_name);
@@ -104,6 +108,23 @@ public class J2VEnv {
     return count_functions;
   }
 
+
+
+  int createLayout(J2VClassLayout j, HashMap<String, Integer> h) {
+    int offset = 4;
+    if (j.parent != null) {
+      offset = createLayout(layout.get(j.parent), h);
+    }
+    for (String member : j.member_list) {
+      if (!h.containsKey(member)) {
+        h.put(member, offset); 
+        offset += 4;
+      }
+    }
+    return offset;
+  }
+
+
   void createAllVirtualTables() {
     System.out.println("");
     System.out.println("");
@@ -112,15 +133,20 @@ public class J2VEnv {
     HashMap<String, Integer> virtual_table = null;
 
     for (String cur_class : list_classes) {
-      System.out.println("const vmt_" + cur_class);
-      function_list = new HashMap<String, String>();
-      virtual_table = layout.get(cur_class).virtual_table;
-      createVirtualTable(cur_class, function_list, virtual_table);
-      System.out.println("");
+      if (!cur_class.equals(main_class)) {
+        System.out.println("const vmt_" + cur_class);
+        function_list = new HashMap<String, String>();
+        J2VClassLayout j = layout.get(cur_class);
+        virtual_table = j.virtual_table;
+        createVirtualTable(cur_class, function_list, virtual_table);
+        createLayout(j, j.member_offsets);
+        System.out.println("");
+      }
     }
 
     System.out.println("");
   }
+
   /////////////////////////////
   /////////////////////////////
   //Oh, how I do wish I could use my push pop notation for everything.
@@ -142,6 +168,9 @@ public class J2VEnv {
     counter_temp = 0;
     counter_label = 0;
     getIdentifier("this");
+    for (String id : cur_class.member_offsets.keySet()) {
+      getIdentifier(id);
+    }
   }
 
   void endParseMethod() {
@@ -211,7 +240,18 @@ public class J2VEnv {
   }
 
   String findVariableEnv(int ticket) {
-    return variable_map.get(ticket).identifier;
+    String s = variable_map.get(ticket).identifier;
+    int offset = 0;
+    if (cur_class.member_offsets.containsKey(s)) {
+      offset = cur_class.member_offsets.get(s);
+      s = "[this+" + String.valueOf(offset) + "]";
+    }
+    return s;
+  }
+
+  int findMemberOffset(String class_name, String member_name) {
+//    J2VClassLayout j = layout.get(class_name);
+    return layout.get(class_name).member_offsets.get(member_name);
   }
 
 
@@ -226,6 +266,7 @@ class J2VClassLayout {
   int size;
 
   Vector<String> function_list;
+  Vector<String> member_list;
   HashMap<String, Integer> virtual_table;
   HashMap<String, Integer> member_offsets;
 }
