@@ -341,9 +341,8 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(AssignmentStatement n) {
     Integer _ret=null;
     String identifier = n.f0.f0.toString();
-    int ticket = env.getIdentifier(identifier);
-
     Integer a = n.f2.accept(this);
+    int ticket = env.getIdentifier(identifier);
 
     VaporValue v1 = env.variable_map.get(ticket);
     VaporValue v2 = env.variable_map.get(a);
@@ -423,11 +422,9 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(PrintStatement n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
-    n.f3.accept(this);
-    n.f4.accept(this);
+    int a = n.f2.accept(this);
+    indentVapor();
+    System.out.println("PrintIntS(" + env.findVariableEnv(a) + ")");
     return _ret;
   }
 
@@ -468,10 +465,9 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(CompareExpression n) {
     Integer _ret=null;
-    int ticket = env.getTemporary();
     int a = n.f0.accept(this);
     int b = n.f2.accept(this);
-
+    int ticket = env.getTemporary();
     stmtAssignment(ticket, "LtS(" + env.findVariableEnv(a) + " " + env.findVariableEnv(b) + ")");
 
     _ret = ticket;
@@ -489,9 +485,9 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(PlusExpression n) {
     Integer _ret=null;
-    int ticket = env.getTemporary();
     int a = n.f0.accept(this);
     int b = n.f2.accept(this);
+    int ticket = env.getTemporary();
 
     stmtAssignment(ticket, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(b) + ")");
     _ret = ticket;
@@ -505,9 +501,9 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(MinusExpression n) {
     Integer _ret=null;
-    int ticket = env.getTemporary();
     int a = n.f0.accept(this);
     int b = n.f2.accept(this);
+    int ticket = env.getTemporary();
 
     stmtAssignment(ticket, "Sub(" + env.findVariableEnv(a) + " " + env.findVariableEnv(b) + ")");
     _ret = ticket;
@@ -522,9 +518,9 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(TimesExpression n) {
     Integer _ret=null;
     
-    int ticket = env.getTemporary();
     int a = n.f0.accept(this);
     int b = n.f2.accept(this);
+    int ticket = env.getTemporary();
 
     stmtAssignment(ticket, "MulS(" + env.findVariableEnv(a) + " " + env.findVariableEnv(b) + ")");
    
@@ -570,10 +566,11 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(MessageSend n) {
     Integer _ret=null;
-    int ticket1 = env.getTemporary();
-    int ticket2 = env.getTemporary();
 
     int a = n.f0.accept(this);
+
+    int ticket1 = env.getTemporary();
+    int ticket2 = env.getTemporary();
 
     String function_name = n.f2.f0.toString();
     String class_name = null;
