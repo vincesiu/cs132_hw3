@@ -579,13 +579,14 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int offset = env.layout.get(class_name).virtual_table.get(function_name);
 
     stmtMemoryAccess(ticket1, env.findVariableEnv(a));
-    stmtMemoryAccess(ticket1, env.findVariableEnv(ticket1) + "+0");
+    stmtMemoryAccess(ticket1, env.findVariableEnv(ticket1) + "+0"); //TODO fix this lol
 
 
 
 
     
       
+    env.call_list.push(env.call_parameters);
     env.call_parameters = new Vector<Integer>();
     n.f4.accept(this);
 
@@ -598,7 +599,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
 
     stmtAssignment(ticket2, "call " + env.findVariableEnv(ticket1) + "(" + env.findVariableEnv(a) + parameters + ")");
 
-    env.call_parameters = null;
+    env.call_parameters = env.call_list.pop();
     _ret = ticket2;
     return _ret;
   }

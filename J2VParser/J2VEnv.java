@@ -20,6 +20,7 @@ public class J2VEnv {
   HashMap<Integer, VaporValue> variable_map;
   HashMap<String, Integer> identifier_map;
   Vector<Integer> call_parameters;
+  Stack<Vector<Integer>> call_list;
   
   public J2VEnv() {
     layout = new HashMap<String, J2VClassLayout>();
@@ -33,6 +34,10 @@ public class J2VEnv {
     counter_var = 0;
     variable_map = null;
     identifier_map = null;
+
+    call_parameters = new Vector<Integer>();
+    call_list = new Stack<Vector<Integer>>();
+
   }
 
   // Class Layout Stuff
