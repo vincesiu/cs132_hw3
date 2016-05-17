@@ -326,9 +326,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(Block n) {
     Integer _ret=null;
-    n.f0.accept(this);
     n.f1.accept(this);
-    n.f2.accept(this);
     return _ret;
   }
 
@@ -386,13 +384,30 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(IfStatement n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
-    n.f3.accept(this);
+
+
+    int a = n.f2.accept(this);
+    int control1 = env.getLabel();
+    int control2 = env.getLabel();
+
+    indentVapor();
+    System.out.println("if0 " + env.findVariableEnv(a) + " goto :" + env.findVariableEnv(control1));
+    pushIndentation(); 
+
     n.f4.accept(this);
-    n.f5.accept(this);
+    indentVapor();
+    System.out.println("goto :" + env.findVariableEnv(control2));
+
+    popIndentation();
+
+    indentVapor();
+    System.out.println(env.findVariableEnv(control1) + ":");
+    pushIndentation();
     n.f6.accept(this);
+    popIndentation();
+    indentVapor();
+    System.out.println(env.findVariableEnv(control2) + ":");
+
     return _ret;
   }
 
