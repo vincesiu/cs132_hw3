@@ -574,6 +574,8 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
 
     String function_name = n.f2.f0.toString();
     String class_name = null;
+    
+    //to get the correct classname of the function
     if (a == 0) {
       class_name = env.cur_class.id; 
     } else {
@@ -581,11 +583,9 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     }
     int offset = env.layout.get(class_name).virtual_table.get(function_name);
 
+    //to get the function name in ticket1
     stmtMemoryAccess(ticket1, env.findVariableEnv(a));
     stmtMemoryAccess(ticket1, env.findVariableEnv(ticket1) + "+" + String.valueOf(offset));
-
-
-
 
     
       
@@ -711,11 +711,19 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(ArrayAllocationExpression n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
-    n.f3.accept(this);
-    n.f4.accept(this);
+    int a = n.f3.accept(this);
+
+    int ticket1 = env.getTemporary();
+    int ticket2 = env.getTemporary();
+
+    //TODO unsure if this is the correct allocation number?
+    
+    stmtAssignment(ticket1, env.findVariableEnv(a) + "+4");
+    stmtAssignment(ticket2, "HeapAllocZ(" + env.findVariableEnv(ticket1) + ")");
+    stmtMemoryAssignment(ticket2, env.findVariableEnv(ticket1));
+     
+    _ret = ticket2;
+
     return _ret;
   }
 
@@ -750,8 +758,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(NotExpression n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
+    //TODO check this?
+    int a = n.f1.accept(this);
+    int ticket = env.getTemporary();
+    stmtAssignment(ticket, "LtS(" + env.findVariableEnv(a) + " 1)");
     return _ret;
   }
 
@@ -821,17 +831,5 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     for (int i = 0; i < env.indentation_level; i++) {
       System.out.printf("  ");
     }
-
   }
-
-  int obtainVarTicket() {
-    env.counter_var += 1;
-    return env.counter_var - 1;
-  }
-
-  int obtainLabelTicket() {
-    env.counter_label += 1;
-    return env.counter_label - 1;
-  }
-
 }

@@ -99,9 +99,9 @@ public class J2VEnv {
     }
 
     for (String cur_function : cur.function_list) {
-      count_functions += 1;
       cur_class = function_list.get(cur_function); 
       virtual_table.put(cur_function, count_functions * 4); 
+      count_functions += 1;
       System.out.println("  :" + cur_class + "." + cur_function);
     }
 
