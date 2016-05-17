@@ -11,55 +11,6 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public J2VParser(J2VEnv input) {
     env = input;
   }
-  //
-  // Auto class visitors--probably don't need to be overridden.
-  //
-  public Integer visit(NodeList n) {
-    Integer _ret=null;
-    int _count=0;
-    for ( Enumeration<Node> e = n.elements(); e.hasMoreElements(); ) {
-      e.nextElement().accept(this);
-      _count++;
-    }
-    return _ret;
-  }
-
-  public Integer visit(NodeListOptional n) {
-    if ( n.present() ) {
-      Integer _ret=null;
-      int _count=0;
-      for ( Enumeration<Node> e = n.elements(); e.hasMoreElements(); ) {
-        e.nextElement().accept(this);
-        _count++;
-      }
-      return _ret;
-    }
-    else
-      return null;
-  }
-
-  public Integer visit(NodeOptional n) {
-    if ( n.present() )
-      return n.node.accept(this);
-    else
-      return null;
-  }
-
-  public Integer visit(NodeSequence n) {
-    Integer _ret=null;
-    int _count=0;
-    for ( Enumeration<Node> e = n.elements(); e.hasMoreElements(); ) {
-      e.nextElement().accept(this);
-      _count++;
-    }
-    return _ret;
-  }
-
-  public Integer visit(NodeToken n) { return null; }
-
-  //
-  // User-generated visitor methods below
-  //
 
   /**
    * f0 -> MainClass()
@@ -181,9 +132,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(VarDeclaration n) {
     Integer _ret=null;
-    n.f0.accept(this);
     n.f1.accept(this);
-    n.f2.accept(this);
     return _ret;
   }
 
@@ -363,13 +312,35 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(ArrayAssignmentStatement n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
-    n.f3.accept(this);
-    n.f4.accept(this);
-    n.f5.accept(this);
-    n.f6.accept(this);
+    int a = n.f0.accept(this);
+    int b = n.f2.accept(this);
+    int c = n.f5.accept(this);
+    int ticket1 = env.getTemporary();
+    int ticket2 = env.getTemporary();
+    int ticket3 = env.getTemporary();
+    int ticket4 = env.getTemporary();
+    int ticket5 = env.getTemporary();
+    int control1 = env.getLabel();
+    
+    //ticket1 = a + b
+    //ticket2 = [a]
+    //ticket3 = LtS(b ticket2) //b < ticket2
+    //if ticket3 goto: control1
+    //  Error("out of bounds access")
+    //control1: 
+    //ticket3 = [ticket1 + 4]
+    stmtAssignment(ticket1, "MulS(" + env.findVariableEnv(b) + " 4)");
+    stmtAssignment(ticket2, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtAssignment(ticket3, "Add(" + env.findVariableEnv(ticket2) + " 4)");
+    stmtMemoryAssignment(ticket3, env.findVariableEnv(c));
+//TODO
+
+
+    _ret = ticket4;
+  
+
+
+
     return _ret;
   }
 
@@ -390,6 +361,11 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int control1 = env.getLabel();
     int control2 = env.getLabel();
 
+    stmtIfGoto(a, control1);
+    pushIndentation();
+    n.f4.accept(this);
+    stmtGoto(control2);
+    /*
     indentVapor();
     System.out.println("if0 " + env.findVariableEnv(a) + " goto :" + env.findVariableEnv(control1));
     pushIndentation(); 
@@ -397,6 +373,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     n.f4.accept(this);
     indentVapor();
     System.out.println("goto :" + env.findVariableEnv(control2));
+    */
 
     popIndentation();
 
@@ -419,8 +396,29 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(WhileStatement n) {
     Integer _ret=null;
 
-    n.f2.accept(this);
+    int control1 = env.getLabel();
+    int control2 = env.getLabel();
+
+    //Initial conditional tag
+    stmtLabel(control1);
+    //Jump to end
+    int a = n.f2.accept(this);
+    stmtIfGoto(a, control2);
+    //Main Loop code
     n.f3.accept(this);
+    //Jump to conditional
+    stmtGoto(control1);
+    /*
+    indentVapor();
+    System.out.println("if0 " + env.findVariableEnv(a) + " goto :" + env.findVariableEnv(control2));
+    n.f3.accept(this);
+
+    indentVapor();
+    System.out.println("goto :" + env.findVariableEnv(control1));
+    */
+
+    stmtLabel(control2);
+
     return _ret;
   }
 
@@ -463,6 +461,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(AndExpression n) {
     Integer _ret=null;
+    //TODO
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -547,10 +546,17 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(ArrayLookup n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
-    n.f3.accept(this);
+    int a = n.f0.accept(this);
+    int b = n.f2.accept(this);
+    int ticket1 = env.getTemporary();
+    int ticket2 = env.getTemporary();
+    int ticket3 = env.getTemporary();
+
+    stmtAssignment(ticket1, "MulS(" + env.findVariableEnv(b) + " 4)");
+    stmtAssignment(ticket2, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtMemoryAccess(ticket3, env.findVariableEnv(ticket2) + "+4");
+
+    _ret = ticket3;
     return _ret;
   }
 
@@ -726,14 +732,15 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
 
     int ticket1 = env.getTemporary();
     int ticket2 = env.getTemporary();
+    int ticket3 = env.getTemporary();
 
-    //TODO unsure if this is the correct allocation number?
-    
-    stmtAssignment(ticket1, env.findVariableEnv(a) + "+4");
-    stmtAssignment(ticket2, "HeapAllocZ(" + env.findVariableEnv(ticket1) + ")");
-    stmtMemoryAssignment(ticket2, env.findVariableEnv(ticket1));
+    //Assigning the size in position 1 as the size of only the data values, and not metadata
+    stmtAssignment(ticket1, "MulS(" + env.findVariableEnv(a) + " 4)");
+    stmtAssignment(ticket2, "Add(" + env.findVariableEnv(ticket1) + " 4)");
+    stmtAssignment(ticket3, "HeapAllocZ(" + env.findVariableEnv(ticket2) + ")");
+    stmtMemoryAssignment(ticket3, env.findVariableEnv(ticket1));
      
-    _ret = ticket2;
+    _ret = ticket3;
 
     return _ret;
   }
@@ -841,6 +848,16 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   void stmtLabel(int label) {
     indentVapor();
     System.out.println(env.findVariableEnv(label) + ":");
+  }
+
+  void stmtIfGoto(int ticket, int label) {
+    indentVapor();
+    System.out.println("if0 " + env.findVariableEnv(ticket) + " goto :" + env.findVariableEnv(label));
+  }
+
+  void stmtGoto(int label) {
+    indentVapor();
+    System.out.println("goto :" + env.findVariableEnv(label));
   }
 
   void indentVapor() {
