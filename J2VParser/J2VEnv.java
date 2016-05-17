@@ -51,6 +51,7 @@ public class J2VEnv {
     cur_class.id = class_name;
     cur_class.size = 4;
 
+    cur_class.member_types = new HashMap<String, String>();
     cur_class.member_offsets = new HashMap<String, Integer>();
     cur_class.virtual_table = new HashMap<String, Integer>();
     cur_class.member_list = new Vector<String>();
@@ -67,11 +68,12 @@ public class J2VEnv {
     cur_class = null;
   }
 
-  void pushMember(String member_name) {
+  void pushMember(String member_name, String member_type) {
     if (cur_class == null) {
       J2VError.throwError("Did not previously initialize class before adding member"); 
     }
     cur_class.member_list.add(member_name);
+    cur_class.member_types.put(member_name, member_type);
   }
 
   void pushMethod(String method_name) {
@@ -167,9 +169,13 @@ public class J2VEnv {
     counter_var = 0;
     counter_temp = 0;
     counter_label = 0;
-    getIdentifier("this");
+    int ticket;
+    ticket = getIdentifier("this");
+    variable_map.get(ticket).class_name = cur_class.id; 
+
     for (String id : cur_class.member_offsets.keySet()) {
-      getIdentifier(id);
+      ticket = getIdentifier(id);
+      variable_map.get(ticket).class_name = cur_class.member_types.get(id);
     }
   }
 
@@ -269,6 +275,7 @@ class J2VClassLayout {
   Vector<String> member_list;
   HashMap<String, Integer> virtual_table;
   HashMap<String, Integer> member_offsets;
+  HashMap<String, String> member_types;
 }
 
 class VaporValue {

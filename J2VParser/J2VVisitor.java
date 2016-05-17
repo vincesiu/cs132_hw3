@@ -175,8 +175,9 @@ public class J2VVisitor extends GJNoArguDepthFirst<String> {
     */
    public String visit(VarDeclaration n) {
       String _ret=null;
+      String member_type = n.f0.accept(this);
       String member_name = n.f1.accept(this);
-      env.pushMember(member_name);
+      env.pushMember(member_name, member_type);
       return _ret;
    }
 
@@ -246,7 +247,7 @@ public class J2VVisitor extends GJNoArguDepthFirst<String> {
     */
    public String visit(Type n) {
       String _ret=null;
-      n.f0.accept(this);
+      _ret = n.f0.accept(this);
       return _ret;
    }
 

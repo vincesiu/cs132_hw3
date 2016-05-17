@@ -132,7 +132,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(VarDeclaration n) {
     Integer _ret=null;
-    n.f1.accept(this);
+    String type = n.f0.accept(new J2VHack());
+    int ticket = n.f1.accept(this);
+    
+    env.variable_map.get(ticket).class_name = type;
     return _ret;
   }
 
@@ -291,13 +294,16 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     Integer a = n.f2.accept(this);
     int ticket = env.getIdentifier(identifier);
 
+    /*
     VaporValue v1 = env.variable_map.get(ticket);
     VaporValue v2 = env.variable_map.get(a);
   
     v1.class_name = v2.class_name;
+    */
     
     stmtAssignment(ticket, env.findVariableEnv(a)); 
     
+    _ret = ticket;
     return _ret;
   }
 
@@ -414,7 +420,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int a = n.f2.accept(this);
     stmtIfGoto(a, control2);
     //Main Loop code
-    n.f3.accept(this);
+    n.f4.accept(this);
     //Jump to conditional
     stmtGoto(control1);
     /*
@@ -630,6 +636,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(ArrayLength n) {
     Integer _ret=null;
+    //TODO
     n.f0.accept(this);
     n.f1.accept(this);
     n.f2.accept(this);
@@ -645,6 +652,8 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    * f5 -> ")"
    */
   public Integer visit(MessageSend n) {
+    //TODO check out of bounds
+    //
     Integer _ret=null;
 
     int a = n.f0.accept(this);
@@ -661,6 +670,18 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     } else {
       class_name = env.variable_map.get(a).class_name;
     }
+
+    /*
+    System.out.println(a);
+    System.out.println(env.variable_map.keySet());
+    for (Integer v : env.variable_map.keySet()) {
+      System.out.println(env.variable_map.get(v).identifier);
+    }
+    System.out.println(class_name);
+    System.out.println(env.layout.get(class_name));
+    System.out.println(env.layout.get(class_name).virtual_table);
+    */
+
     int offset = env.layout.get(class_name).virtual_table.get(function_name);
 
     //to get the function name in ticket1
@@ -843,6 +864,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int a = n.f1.accept(this);
     int ticket = env.getTemporary();
     stmtAssignment(ticket, "LtS(" + env.findVariableEnv(a) + " 1)");
+    _ret = ticket;
     return _ret;
   }
 
