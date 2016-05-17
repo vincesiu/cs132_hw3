@@ -601,7 +601,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(IntegerLiteral n) {
     Integer _ret=null;
 
-    int ticket = env.newTemporary(); 
+    int ticket = env.getTemporary(); 
 
     stmtAssignment(ticket, n.f0.toString());
 
@@ -615,7 +615,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(TrueLiteral n) {
     Integer _ret=null;
 
-    int ticket = env.newTemporary(); 
+    int ticket = env.getTemporary(); 
     stmtAssignment(ticket, "1");
     _ret = ticket;
     return _ret;
@@ -627,7 +627,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(FalseLiteral n) {
     Integer _ret=null;
 
-    int ticket = env.newTemporary(); 
+    int ticket = env.getTemporary(); 
     stmtAssignment(ticket, "0");
     _ret = ticket;
     return _ret;
@@ -680,7 +680,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
 
     J2VClassLayout class_layout = env.layout.get(class_name);
 
-    ticket = env.newTemporary(); 
+    ticket = env.getTemporary(); 
 
     stmtAssignment(ticket, "HeapAllocZ(" + class_layout.size + ")");
     stmtMemoryAccess(ticket, ":vmt_" + class_layout.id);

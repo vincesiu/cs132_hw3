@@ -183,7 +183,7 @@ public class J2VEnv {
     return _ret;
   }
   
-  int newTemporary() {
+  int getTemporary() {
     int ticket = obtainVarNumber();
     int temp = obtainTempNumber();
 
@@ -192,7 +192,7 @@ public class J2VEnv {
     return ticket;
   }
 
-  int newLabel() {
+  int getLabel() {
     int ticket = obtainVarNumber();
     int temp = obtainLabelNumber();
 
