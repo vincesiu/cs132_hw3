@@ -470,10 +470,42 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(AndExpression n) {
     Integer _ret=null;
-    //TODO
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
+    //Pseudocode
+    //ticket1 = Eq(1 a)
+    //ticket2 = Eq(1 a)
+    //if0 ticket1 goto :control1
+    //  if0 ticket2 goto :control1
+    //    ticket3 = 1
+    //goto: control2
+    //control1: 
+    //  ticket3 = 0
+    //control2:
+    int a = n.f0.accept(this);
+    int b = n.f2.accept(this);
+    int ticket1 = env.getTemporary();
+    int ticket2 = env.getTemporary();
+    int ticket3 = env.getTemporary();
+    int control1 = env.getLabel();
+    int control2 = env.getLabel();
+    stmtAssignment(ticket1, "Eq(1 " + env.findVariableEnv(a) + ")");
+    stmtAssignment(ticket2, "Eq(2 " + env.findVariableEnv(b) + ")");
+
+    stmtIfGoto(ticket1, control1);
+    pushIndentation();
+    stmtIfGoto(ticket2, control1);
+    pushIndentation();
+    stmtAssignment(ticket3, "1");
+    popIndentation();
+    popIndentation();
+    stmtGoto(control2);
+    stmtLabel(control1);
+    pushIndentation();
+    stmtAssignment(ticket3, "0");
+    popIndentation();
+    stmtLabel(control2);
+
+     
+    _ret = ticket3;
     return _ret;
   }
 
