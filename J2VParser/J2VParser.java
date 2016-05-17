@@ -339,12 +339,14 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     String identifier = n.f0.f0.toString();
     int ticket = env.getIdentifier(identifier);
 
+    Integer a = n.f2.accept(this);
 
-    Integer t = n.f2.accept(this);
-    Integer s = 3;
-    stmtAssignment(ticket, "UNIMPLEMENTED - ASSIGNMENT TO IDENTIFIER" + s); 
-
-    //TODO: implement after expression is done
+    VaporValue v1 = env.variable_map.get(ticket);
+    VaporValue v2 = env.variable_map.get(a);
+  
+    v1.class_name = v2.class_name;
+    
+    stmtAssignment(ticket, env.findVariableEnv(a)); 
     
     return _ret;
   }
@@ -579,7 +581,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int offset = env.layout.get(class_name).virtual_table.get(function_name);
 
     stmtMemoryAccess(ticket1, env.findVariableEnv(a));
-    stmtMemoryAccess(ticket1, env.findVariableEnv(ticket1) + "+0"); //TODO fix this lol
+    stmtMemoryAccess(ticket1, env.findVariableEnv(ticket1) + "+" + String.valueOf(offset));
 
 
 
