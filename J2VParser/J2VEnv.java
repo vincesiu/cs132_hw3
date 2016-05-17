@@ -19,6 +19,7 @@ public class J2VEnv {
   int counter_var;
   HashMap<Integer, VaporValue> variable_map;
   HashMap<String, Integer> identifier_map;
+  Vector<Integer> call_parameters;
   
   public J2VEnv() {
     layout = new HashMap<String, J2VClassLayout>();
@@ -117,7 +118,8 @@ public class J2VEnv {
   }
   /////////////////////////////
   /////////////////////////////
-  //Oh, how I do wish I could use my push pop notation for everything. ALAS!
+  //Oh, how I do wish I could use my push pop notation for everything.
+  //ALAS!
   //The following will be used in J2VParser
 
   void startParseClass(String class_name) {
@@ -134,6 +136,7 @@ public class J2VEnv {
     counter_var = 0;
     counter_temp = 0;
     counter_label = 0;
+    getIdentifier("this");
   }
 
   void endParseMethod() {
@@ -192,6 +195,7 @@ public class J2VEnv {
     return ticket;
   }
 
+
   int getLabel() {
     int ticket = obtainVarNumber();
     int temp = obtainLabelNumber();
@@ -203,19 +207,6 @@ public class J2VEnv {
 
   String findVariableEnv(int ticket) {
     return variable_map.get(ticket).identifier;
-  }
-
-  int findTicketNumEnv(String identifier) {
-    int _ret = 0;;
-    System.out.println(identifier);
-    System.out.println(identifier_map);
-    Integer out = identifier_map.get(identifier);
-    if (out == null) {
-      _ret = -1;
-    } else {
-      _ret = out;
-    }
-    return out;
   }
 
 
@@ -236,7 +227,9 @@ class J2VClassLayout {
 
 class VaporValue {
   String identifier;
+  String class_name;
   VaporValue(String input) {
     identifier = input;
+    class_name = null;
   }
 }

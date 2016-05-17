@@ -438,7 +438,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(Expression n) {
     Integer _ret=null;
-    n.f0.accept(this);
+    _ret = n.f0.accept(this);
     return _ret;
   }
 
@@ -488,6 +488,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int b = n.f2.accept(this);
 
     stmtAssignment(ticket, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(b) + ")");
+    _ret = ticket;
     return _ret;
   }
 
@@ -503,6 +504,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int b = n.f2.accept(this);
 
     stmtAssignment(ticket, "Sub(" + env.findVariableEnv(a) + " " + env.findVariableEnv(b) + ")");
+    _ret = ticket;
     return _ret;
   }
 
@@ -513,13 +515,14 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(TimesExpression n) {
     Integer _ret=null;
-    /*
+    
     int ticket = env.getTemporary();
     int a = n.f0.accept(this);
     int b = n.f2.accept(this);
 
     stmtAssignment(ticket, "MulS(" + env.findVariableEnv(a) + " " + env.findVariableEnv(b) + ")");
-    */
+   
+    _ret = ticket;
     return _ret;
   }
 
@@ -561,12 +564,42 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(MessageSend n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
-    n.f3.accept(this);
+    int ticket1 = env.getTemporary();
+    int ticket2 = env.getTemporary();
+
+    int a = n.f0.accept(this);
+
+    String function_name = n.f2.f0.toString();
+    String class_name = null;
+    if (a == 0) {
+      class_name = env.cur_class.id; 
+    } else {
+      class_name = env.variable_map.get(a).class_name;
+    }
+    int offset = env.layout.get(class_name).virtual_table.get(function_name);
+
+    stmtMemoryAccess(ticket1, env.findVariableEnv(a));
+    stmtMemoryAccess(ticket1, env.findVariableEnv(ticket1) + "+0");
+
+
+
+
+    
+      
+    env.call_parameters = new Vector<Integer>();
     n.f4.accept(this);
-    n.f5.accept(this);
+
+    String parameters = "";
+
+    for (Integer ticket_param : env.call_parameters) {
+      parameters += " ";
+      parameters += env.findVariableEnv(ticket_param);
+    }
+
+    stmtAssignment(ticket2, "call " + env.findVariableEnv(ticket1) + "(" + env.findVariableEnv(a) + parameters + ")");
+
+    env.call_parameters = null;
+    _ret = ticket2;
     return _ret;
   }
 
@@ -576,7 +609,8 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(ExpressionList n) {
     Integer _ret=null;
-    n.f0.accept(this);
+    Integer a = n.f0.accept(this);
+    env.call_parameters.add(a);
     n.f1.accept(this);
     return _ret;
   }
@@ -587,8 +621,8 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(ExpressionRest n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
+    Integer a = n.f1.accept(this);
+    env.call_parameters.add(a);
     return _ret;
   }
 
@@ -606,8 +640,6 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(PrimaryExpression n) {
     Integer _ret=null;
     _ret = n.f0.accept(this);
-//    System.out.println("hi");
-//    System.out.println(_ret);
     return _ret;
   }
 
@@ -662,7 +694,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(ThisExpression n) {
     Integer _ret=null;
-    n.f0.accept(this);
+    _ret = 0;
     return _ret;
   }
 
@@ -698,8 +730,11 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
 
     ticket = env.getTemporary(); 
 
+    VaporValue v = env.variable_map.get(ticket);
+    v.class_name = class_name;
+
     stmtAssignment(ticket, "HeapAllocZ(" + class_layout.size + ")");
-    stmtMemoryAccess(ticket, ":vmt_" + class_layout.id);
+    stmtMemoryAssignment(ticket, ":vmt_" + class_layout.id);
 
     _ret = ticket;
     return _ret;
@@ -723,9 +758,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(BracketExpression n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
+    _ret = n.f1.accept(this);
     return _ret;
   }
 
@@ -760,20 +793,31 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     if (rhs == null) {
       J2VError.throwError("Null rhs given to stmtAssignment function");
     }
-    for (int i = 0; i < env.indentation_level; i++) {
-      System.out.printf("  ");
-    }
+    indentVapor();
     System.out.println(env.findVariableEnv(lhs) +  " = " + rhs);
+  }
+
+  void stmtMemoryAssignment(int lhs, String rhs) {
+    if (rhs == null) {
+      J2VError.throwError("Null rhs given to stmtMemoryAssignment function");
+    }
+    indentVapor();
+    System.out.println("[" + env.findVariableEnv(lhs) + "] = " + rhs);
   }
 
   void stmtMemoryAccess(int lhs, String rhs) {
     if (rhs == null) {
       J2VError.throwError("Null rhs given to stmtMemoryAccess function");
     }
+    indentVapor();
+    System.out.println(env.findVariableEnv(lhs) + " = [" + rhs + "]");
+  }
+
+  void indentVapor() {
     for (int i = 0; i < env.indentation_level; i++) {
       System.out.printf("  ");
     }
-    System.out.println("[" + env.findVariableEnv(lhs) + "] = " + rhs);
+
   }
 
   int obtainVarTicket() {
