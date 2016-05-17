@@ -165,12 +165,22 @@ public class J2VEnv {
 
   //Methods to handle the adding of new identifiers
   ///////////////////
-  int newIdentifier(String identifier) {
-    int ticket = obtainVarNumber(); 
-    VaporValue v = new VaporValue(identifier);
-    variable_map.put(ticket, v);
-    identifier_map.put(identifier, ticket);
-    return ticket;
+  int getIdentifier(String identifier) {
+
+    Integer out = identifier_map.get(identifier);
+    int _ret = -1;
+    int ticket = 0;
+
+    if (out == null) {
+      ticket = obtainVarNumber(); 
+      VaporValue v = new VaporValue(identifier);
+      variable_map.put(ticket, v);
+      identifier_map.put(identifier, ticket);
+      _ret = ticket;
+    } else {
+      _ret = out;
+    }
+    return _ret;
   }
   
   int newTemporary() {
@@ -191,8 +201,21 @@ public class J2VEnv {
     return ticket;
   }
 
-  String getVariableFromEnv(int ticket) {
+  String findVariableEnv(int ticket) {
     return variable_map.get(ticket).identifier;
+  }
+
+  int findTicketNumEnv(String identifier) {
+    int _ret = 0;;
+    System.out.println(identifier);
+    System.out.println(identifier_map);
+    Integer out = identifier_map.get(identifier);
+    if (out == null) {
+      _ret = -1;
+    } else {
+      _ret = out;
+    }
+    return out;
   }
 
 

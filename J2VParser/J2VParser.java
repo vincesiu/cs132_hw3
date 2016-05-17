@@ -337,8 +337,8 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(AssignmentStatement n) {
     Integer _ret=null;
     String identifier = n.f0.f0.toString();
-    int ticket = env.newTemporary();
-//    env.variable_map.put(identifier, ticket);
+    int ticket = env.getIdentifier(identifier);
+
 
     Integer t = n.f2.accept(this);
     Integer s = 3;
@@ -713,6 +713,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     return _ret;
   }
 
+  //////////////////////////
   void stmtMethodParamStart(String class_name, String function_name) {
     if (function_name.equals("main")) {
       System.out.printf("func Main(");
@@ -723,7 +724,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   
   void stmtMethodParamParameter(String parameter_name) {
     System.out.printf(" " + parameter_name);
-//    env.addIdentifier(parameter_name);
+    env.getIdentifier(parameter_name);
   }
 
   void stmtMethodParamEnd() {
@@ -746,8 +747,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     for (int i = 0; i < env.indentation_level; i++) {
       System.out.printf("  ");
     }
-    System.out.println(env.getVariableFromEnv(lhs) +  " = " + rhs);
- //   System.out.println("t." + String.valueOf(lhs) + " = " + rhs);
+    System.out.println(env.findVariableEnv(lhs) +  " = " + rhs);
   }
 
   void stmtMemoryAccess(int lhs, String rhs) {
@@ -757,7 +757,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     for (int i = 0; i < env.indentation_level; i++) {
       System.out.printf("  ");
     }
-    System.out.println("[" + env.getVariableFromEnv(lhs) + "] = " + rhs);
+    System.out.println("[" + env.findVariableEnv(lhs) + "] = " + rhs);
   }
 
   int obtainVarTicket() {
