@@ -400,13 +400,11 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
 
     popIndentation();
 
-    indentVapor();
-    System.out.println(env.findVariableEnv(control1) + ":");
+    stmtLabel(control1);
     pushIndentation();
     n.f6.accept(this);
     popIndentation();
-    indentVapor();
-    System.out.println(env.findVariableEnv(control2) + ":");
+    stmtLabel(control2);
 
     return _ret;
   }
@@ -420,11 +418,9 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(WhileStatement n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
+
     n.f2.accept(this);
     n.f3.accept(this);
-    n.f4.accept(this);
     return _ret;
   }
 
@@ -840,6 +836,11 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     }
     indentVapor();
     System.out.println(env.findVariableEnv(lhs) + " = [" + rhs + "]");
+  }
+
+  void stmtLabel(int label) {
+    indentVapor();
+    System.out.println(env.findVariableEnv(label) + ":");
   }
 
   void indentVapor() {
