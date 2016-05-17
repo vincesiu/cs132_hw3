@@ -462,8 +462,16 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(CompareExpression n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f2.accept(this);
+    int ticket = env.getTemporary();
+    int a = n.f0.accept(this);
+    int b = n.f2.accept(this);
+
+    stmtAssignment(ticket, "LtS(" + env.findVariableEnv(a) + " " + env.findVariableEnv(b) + ")");
+
+    _ret = ticket;
+
+    
+
 
     return _ret;
   }
@@ -475,9 +483,11 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(PlusExpression n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
+    int ticket = env.getTemporary();
+    int a = n.f0.accept(this);
+    int b = n.f2.accept(this);
+
+    stmtAssignment(ticket, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(b) + ")");
     return _ret;
   }
 
@@ -488,9 +498,11 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(MinusExpression n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
+    int ticket = env.getTemporary();
+    int a = n.f0.accept(this);
+    int b = n.f2.accept(this);
+
+    stmtAssignment(ticket, "Sub(" + env.findVariableEnv(a) + " " + env.findVariableEnv(b) + ")");
     return _ret;
   }
 
@@ -501,9 +513,13 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(TimesExpression n) {
     Integer _ret=null;
-    n.f0.accept(this);
-    n.f1.accept(this);
-    n.f2.accept(this);
+    /*
+    int ticket = env.getTemporary();
+    int a = n.f0.accept(this);
+    int b = n.f2.accept(this);
+
+    stmtAssignment(ticket, "MulS(" + env.findVariableEnv(a) + " " + env.findVariableEnv(b) + ")");
+    */
     return _ret;
   }
 
@@ -637,7 +653,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    * f0 -> <IDENTIFIER>
    */
   public Integer visit(Identifier n) {
-    Integer _ret=null;
+    Integer _ret = env.getIdentifier(n.f0.toString());
     return _ret;
   }
 
