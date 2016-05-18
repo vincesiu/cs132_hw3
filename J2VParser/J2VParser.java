@@ -197,8 +197,9 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(FormalParameter n) {
     Integer _ret=null;
+    String type = n.f0.accept(new J2VHack());
     String parameter_name = n.f1.f0.toString();
-    stmtMethodParamParameter(parameter_name);
+    stmtMethodParamParameter(parameter_name, type);
 
     return _ret;
   }
@@ -685,7 +686,6 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
       class_name = env.variable_map.get(a).class_name;
     }
 
-    /*
     System.out.println(a);
     System.out.println(env.variable_map.keySet());
     for (Integer v : env.variable_map.keySet()) {
@@ -694,7 +694,6 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     System.out.println(class_name);
     System.out.println(env.layout.get(class_name));
     System.out.println(env.layout.get(class_name).virtual_table);
-    */
 
     int offset = env.layout.get(class_name).virtual_table.get(function_name);
 
@@ -902,9 +901,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     }
   }
   
-  void stmtMethodParamParameter(String parameter_name) {
+  void stmtMethodParamParameter(String parameter_name, String parameter_type) {
     System.out.printf(" " + parameter_name);
-    env.getIdentifier(parameter_name);
+    int ticket = env.getIdentifier(parameter_name);
+    env.variable_map.get(ticket).class_name = parameter_type; 
   }
 
   void stmtMethodParamEnd() {
