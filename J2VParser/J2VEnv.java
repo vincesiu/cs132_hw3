@@ -49,6 +49,7 @@ public class J2VEnv {
     cur_class.id = class_name;
     cur_class.size = 4;
 
+    cur_class.method_types = new HashMap<String, String>();
     cur_class.member_types = new HashMap<String, String>();
     cur_class.member_offsets = new HashMap<String, Integer>();
     cur_class.virtual_table = new HashMap<String, Integer>();
@@ -74,11 +75,12 @@ public class J2VEnv {
     cur_class.member_types.put(member_name, member_type);
   }
 
-  void pushMethod(String method_name) {
+  void pushMethod(String method_name, String method_type) {
     if (cur_class == null) {
       J2VError.throwError("Did not previously initialize class before adding method"); 
     }
     cur_class.function_list.add(method_name);
+    cur_class.method_types.put(method_name, method_type);
   }
 
 
@@ -110,16 +112,19 @@ public class J2VEnv {
 
 
 
-  int createLayout(J2VClassLayout j, HashMap<String, Integer> h) {
+  int createLayout(J2VClassLayout j, HashMap<String, Integer> h, HashMap<String, String> t) {
     int offset = 4;
     if (j.parent != null) {
-      offset = createLayout(layout.get(j.parent), h);
+      offset = createLayout(layout.get(j.parent), h, t);
     }
     for (String member : j.member_list) {
       if (!h.containsKey(member)) {
         h.put(member, offset); 
         offset += 4;
       }
+    }
+    for (String method : j.method_types.keySet()) {
+      t.put(method, j.method_types.get(method));
     }
     return offset;
   }
@@ -139,7 +144,7 @@ public class J2VEnv {
         J2VClassLayout j = layout.get(cur_class);
         virtual_table = j.virtual_table;
         createVirtualTable(cur_class, function_list, virtual_table);
-        createLayout(j, j.member_offsets);
+        createLayout(j, j.member_offsets, j.method_types);
         System.out.println("");
       }
     }
@@ -170,12 +175,20 @@ public class J2VEnv {
     ticket = getIdentifier("this");
     variable_map.get(ticket).class_name = cur_class.id; 
 
-    for (String id : cur_class.member_offsets.keySet()) {
-      ticket = getIdentifier(id);
-      variable_map.get(ticket).class_name = cur_class.member_types.get(id);
-    }
+    getParentTypes(cur_class, variable_map);
   }
 
+  void getParentTypes(J2VClassLayout j, HashMap<Integer, VaporValue> h) {
+    int ticket;
+    for (String id : j.member_offsets.keySet()) {
+      ticket = getIdentifier(id);
+      variable_map.get(ticket).class_name = j.member_types.get(id);
+    }
+
+    if (j.parent != null) {
+      getParentTypes(layout.get(j.parent), h);
+    }
+  }
   void endParseMethod() {
     variable_map = null;
     identifier_map = null;
@@ -272,6 +285,7 @@ class J2VClassLayout {
   HashMap<String, Integer> virtual_table;
   HashMap<String, Integer> member_offsets;
   HashMap<String, String> member_types;
+  HashMap<String, String> method_types;
 }
 
 class VaporValue {

@@ -102,7 +102,7 @@ public class J2VVisitor extends GJNoArguDepthFirst<String> {
       String class_name = n.f1.accept(this);
       env.main_class = class_name;
       env.pushClass(class_name, null);
-      env.pushMethod("main");
+      env.pushMethod("main", null);
 
       n.f14.accept(this);
       n.f15.accept(this);
@@ -198,8 +198,9 @@ public class J2VVisitor extends GJNoArguDepthFirst<String> {
     */
    public String visit(MethodDeclaration n) {
       String _ret=null;
+      String method_type = n.f1.accept(this);
       String method_name = n.f2.accept(this);
-      env.pushMethod(method_name);
+      env.pushMethod(method_name, method_type);
       n.f4.accept(this);
       n.f8.accept(this);
       n.f10.accept(this);

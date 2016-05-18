@@ -295,12 +295,12 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     Integer a = n.f2.accept(this);
     int ticket = env.getIdentifier(identifier);
 
-    /*
     VaporValue v1 = env.variable_map.get(ticket);
     VaporValue v2 = env.variable_map.get(a);
-  
-    v1.class_name = v2.class_name;
-    */
+    if (v1.class_name != null ) {
+      v1.class_name = v2.class_name;
+    }
+    
     
     stmtAssignment(ticket, env.findVariableEnv(a)); 
     
@@ -378,18 +378,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int control2 = env.getLabel();
 
     stmtIf0Goto(a, control1);
+
     pushIndentation();
     n.f4.accept(this);
     stmtGoto(control2);
-    /*
-    indentVapor();
-    System.out.println("if0 " + env.findVariableEnv(a) + " goto :" + env.findVariableEnv(control1));
-    pushIndentation(); 
-
-    n.f4.accept(this);
-    indentVapor();
-    System.out.println("goto :" + env.findVariableEnv(control2));
-    */
 
     popIndentation();
 
@@ -689,16 +681,28 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     }
 
 
-    //System.out.println(a);
-    //System.out.println(env.variable_map.keySet());
-    //for (Integer v : env.variable_map.keySet()) {
-    //  System.out.println(env.variable_map.get(v).identifier);
-    //}
-    //System.out.println(class_name);
-    //System.out.println(env.layout.get(class_name));
-    //System.out.println(env.layout.get(class_name).virtual_table);
+   
+    /*
+    System.out.println(a);
+    System.out.println(env.variable_map.keySet());
+    for (Integer v : env.variable_map.keySet()) {
+      String RAND = env.variable_map.get(v).identifier;
+      
+      System.out.printf(RAND + "   :   ");
 
-    int offset = env.layout.get(class_name).virtual_table.get(function_name);
+      System.out.println(env.variable_map.get(v).class_name);
+
+    }
+    System.out.println(class_name);
+    System.out.println(env.layout.get(class_name));
+    System.out.println(env.layout.get(class_name).virtual_table);
+    */
+    
+
+
+    J2VClassLayout class_layout = env.layout.get(class_name);
+    int offset = class_layout.virtual_table.get(function_name);
+    String method_type = class_layout.method_types.get(function_name);
 
     //to get the function name in ticket1
     stmtMemoryAccess(ticket1, env.findVariableEnv(a));
@@ -720,6 +724,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     stmtAssignment(ticket2, "call " + env.findVariableEnv(ticket1) + "(" + env.findVariableEnv(a) + parameters + ")");
 
     env.call_parameters = env.call_list.pop();
+
+    VaporValue v = env.variable_map.get(ticket2);
+    v.class_name = method_type;
+
     _ret = ticket2;
     return _ret;
   }
