@@ -171,8 +171,12 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     n.f7.accept(this);
     n.f8.accept(this);
     int a = n.f10.accept(this);
+
+    int ticket = env.getTemporary();
+    stmtAssignment(ticket, env.findVariableEnv(a));
+    
     indentVapor();
-    System.out.println("ret " + env.findVariableEnv(a));
+    System.out.println("ret " + env.findVariableEnv(ticket));
 
     popIndentation();
     env.endParseMethod();

@@ -14,11 +14,11 @@ public class J2V {
       J2VEnv env = new J2VEnv();
       root.accept(new J2VVisitor(env));
       root.accept(new J2VParser(env));
-      System.err.println("Vapor compilation successful");
+      //System.err.println("Vapor compilation successful");
     }
     catch (Exception e) {
-      System.err.println(e.toString());
-      System.err.println(Arrays.toString(e.getStackTrace()));
+      //System.err.println(e.toString());
+      //System.err.println(Arrays.toString(e.getStackTrace()));
       System.err.println("Vapor compilation failed");
     }
   }
