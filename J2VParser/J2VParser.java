@@ -330,25 +330,25 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int ticket6 = env.getTemporary();
     int control1 = env.getLabel();
     
-    //ticket1 = b * 4
-    //ticket2 = [a]
-    //ticket3 = LtS(ticket1 ticket2) //ticket1 < ticket2
-    //ticket4 = ticket1 + a
-    //if ticket3 goto: control1
+    //ticket1 = [a]
+    //ticket2 = LtS(b ticket1) //b < ticket1
+    //if ticket2 goto: control1
     //  Error("Array out of bounds")
     //control1: 
+    //ticket3 = b * 4
+    //ticket4 = ticket3 + a
     //ticket5 = ticket4 + 4
     //[ticket5] = c
-    stmtAssignment(ticket1, "MulS(" + env.findVariableEnv(b) + " 4)");
-    stmtMemoryAccess(ticket2, env.findVariableEnv(a));
-    stmtAssignment(ticket3, "LtS(" + env.findVariableEnv(ticket1) + " " + env.findVariableEnv(ticket2) + ")");
-    stmtAssignment(ticket4, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(ticket1) + ")");
-    stmtIfGoto(ticket3, control1);
+    stmtMemoryAccess(ticket1, env.findVariableEnv(a));
+    stmtAssignment(ticket2, "LtS(" + env.findVariableEnv(b) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtIfGoto(ticket2, control1);
     pushIndentation();
     indentVapor();
     System.out.println("Error(\"Array out of bounds\")");
     popIndentation();
     stmtLabel(control1);
+    stmtAssignment(ticket3, "MulS(" + env.findVariableEnv(b) + " 4)");
+    stmtAssignment(ticket4, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(ticket3) + ")");
     stmtAssignment(ticket5, "Add(" + env.findVariableEnv(ticket4) + " 4)");
     stmtMemoryAssignment(ticket5, env.findVariableEnv(c));
 
@@ -605,28 +605,27 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
        
 
     //pseudocode
-    //ticket1 = b * 4
-    //ticket2 = a + ticket1
-    //ticket3 = [a]
-    //ticket4 = LtS(ticket1 ticket3) // ticket1 < ticket3, this is true if it isssss out of bounds
-    //if ticket4 goto: control1
+    //ticket1 = [a]
+    //ticket2 = LtS(b ticket1) // b < ticket1, this is true if it isssss out of bounds
+    //if ticket2 goto: control1
     //  Error("Array out of bounds")
     //control1:
-    //ticket5 = [ticket2+4]
+    //ticket3 = b * 4
+    //ticket4 = a + ticket3
+    //ticket5 = [ticket4+4]
     
-    stmtAssignment(ticket1, "MulS(" + env.findVariableEnv(b) + " 4)");
-    stmtAssignment(ticket2, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(ticket1) + ")");
-    stmtMemoryAccess(ticket3, env.findVariableEnv(a));
-    stmtAssignment(ticket4, "LtS(" + env.findVariableEnv(ticket1) + " " + env.findVariableEnv(ticket3) + ")");
-    stmtIfGoto(ticket4, control1);
+    stmtMemoryAccess(ticket1, env.findVariableEnv(a));
+    stmtAssignment(ticket2, "LtS(" + env.findVariableEnv(b) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtIfGoto(ticket2, control1);
     pushIndentation();
-    indentVapor();
-    System.out.println("Error(\"Array out of bounds\")");
+    stmtPrint("Error(\"Array out of bounds\")");
     popIndentation();
     stmtLabel(control1);
-    stmtMemoryAccess(ticket3, env.findVariableEnv(ticket2) + "+4");
+    stmtAssignment(ticket3, "MulS(" + env.findVariableEnv(b) + " 4)");
+    stmtAssignment(ticket4, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(ticket3) + ")");
+    stmtMemoryAccess(ticket5, env.findVariableEnv(ticket4) + "+4");
 
-    _ret = ticket3;
+    _ret = ticket5;
     return _ret;
   }
 
@@ -640,7 +639,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
 
     int a = n.f0.accept(this);
     int ticket = env.getTemporary();
-    stmtMemoryAccess(ticket, a);
+    stmtMemoryAccess(ticket, env.findVariableEnv(a));
 
     n.f1.accept(this);
     n.f2.accept(this);
@@ -839,7 +838,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     stmtAssignment(ticket1, "MulS(" + env.findVariableEnv(a) + " 4)");
     stmtAssignment(ticket2, "Add(" + env.findVariableEnv(ticket1) + " 4)");
     stmtAssignment(ticket3, "HeapAllocZ(" + env.findVariableEnv(ticket2) + ")");
-    stmtMemoryAssignment(ticket3, env.findVariableEnv(ticket1));
+    stmtMemoryAssignment(ticket3, env.findVariableEnv(a));
      
     _ret = ticket3;
 
