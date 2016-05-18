@@ -7,7 +7,7 @@
 
 echo ///////////////////////
 javac J2V.java &&
-java J2V < ./utest/Factorial$1.java > ./utest/.temp &&
+java J2V < ./utest/Factorial$1.java > ./utest/.temp 
 java -jar ./test/vapor.jar run ./utest/.temp
 
 echo ////////////////////////

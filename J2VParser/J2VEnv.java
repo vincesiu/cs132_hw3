@@ -112,15 +112,16 @@ public class J2VEnv {
 
 
 
-  int createLayout(J2VClassLayout j, HashMap<String, Integer> h, HashMap<String, String> t) {
+  int createLayout(J2VClassLayout j, HashMap<String, Integer> h, HashMap<String, String> t, J2VClassLayout orig) {
     int offset = 4;
     if (j.parent != null) {
-      offset = createLayout(layout.get(j.parent), h, t);
+      offset = createLayout(layout.get(j.parent), h, t, orig);
     }
     for (String member : j.member_list) {
       if (!h.containsKey(member)) {
         h.put(member, offset); 
         offset += 4;
+        orig.size += 4;
       }
     }
     for (String method : j.method_types.keySet()) {
@@ -142,9 +143,10 @@ public class J2VEnv {
         System.out.println("const vmt_" + cur_class);
         function_list = new HashMap<String, String>();
         J2VClassLayout j = layout.get(cur_class);
+        j.size = 4;
         virtual_table = j.virtual_table;
         createVirtualTable(cur_class, function_list, virtual_table);
-        createLayout(j, j.member_offsets, j.method_types);
+        createLayout(j, j.member_offsets, j.method_types, j);
         System.out.println("");
       }
     }
@@ -255,6 +257,24 @@ public class J2VEnv {
   }
 
   String findVariableEnv(int ticket) {
+    String s = variable_map.get(ticket).identifier;
+    String t;
+    int offset = 0;
+    if (cur_class.member_offsets.containsKey(s)) {
+      offset = cur_class.member_offsets.get(s);
+
+      t = "[this+" + String.valueOf(offset) + "]";
+      ticket = getTemporary();
+      s = findVariableEnv(ticket);
+      System.out.println(s + " = " + t);
+      for (int i = 0; i < indentation_level; i++) {
+        System.out.printf("  ");
+      }
+    }
+    return s;
+  }
+
+  String findVariableEnvStrict(int ticket) {
     String s = variable_map.get(ticket).identifier;
     int offset = 0;
     if (cur_class.member_offsets.containsKey(s)) {

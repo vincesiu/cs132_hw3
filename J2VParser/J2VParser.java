@@ -172,11 +172,13 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     n.f8.accept(this);
     int a = n.f10.accept(this);
 
+    /*
     int ticket = env.getTemporary();
     stmtAssignment(ticket, env.findVariableEnv(a));
+    */
     
     indentVapor();
-    System.out.println("ret " + env.findVariableEnv(ticket));
+    System.out.println("ret " + env.findVariableEnv(a));
 
     popIndentation();
     env.endParseMethod();
@@ -307,6 +309,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     
     
     stmtAssignment(ticket, env.findVariableEnv(a)); 
+    stmtPrint(env.findVariableEnvStrict(ticket) + " = " + env.findVariableEnv(a));
     
     _ret = ticket;
     return _ret;
@@ -344,11 +347,11 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     //ticket5 = ticket4 + 4
     //[ticket5] = c
     stmtMemoryAccess(ticket1, env.findVariableEnv(a));
-    stmtAssignment(ticket2, "LtS(" + env.findVariableEnv(b) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtAssignment(ticket2, "Lt(" + env.findVariableEnv(b) + " " + env.findVariableEnv(ticket1) + ")");
     stmtIfGoto(ticket2, control1);
     pushIndentation();
     indentVapor();
-    System.out.println("Error(\"Array out of bounds\")");
+    System.out.println("Error(\"array index out of bounds\")");
     popIndentation();
     stmtLabel(control1);
     stmtAssignment(ticket3, "MulS(" + env.findVariableEnv(b) + " 4)");
@@ -380,19 +383,29 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int a = n.f2.accept(this);
     int control1 = env.getLabel();
     int control2 = env.getLabel();
+    int ticket1 = env.getTemporary();
 
-    stmtIf0Goto(a, control1);
+    //ticket1 = a < 1
+    //if ticket1 goto control1:
+    //  blah
+    //  goto control2:
+    //control1
+    //  blah
+    //control2:
+
+    stmtAssignment(ticket1, "LtS(" + env.findVariableEnv(a) + " 1)" );
+    stmtIfGoto(ticket1, control1);
 
     pushIndentation();
     n.f4.accept(this);
     stmtGoto(control2);
-
     popIndentation();
 
     stmtLabel(control1);
     pushIndentation();
     n.f6.accept(this);
     popIndentation();
+
     stmtLabel(control2);
 
     return _ret;
@@ -474,10 +487,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
   public Integer visit(AndExpression n) {
     Integer _ret=null;
     //Pseudocode
-    //ticket1 = Eq(1 a)
-    //ticket2 = Eq(1 a)
-    //if0 ticket1 goto :control1
-    //  if0 ticket2 goto :control1
+    //ticket1 = LtS(a 1)
+    //ticket2 = LtS(b 1)
+    //if ticket1 goto :control1
+    //  if ticket2 goto :control1
     //    ticket3 = 1
     //goto: control2
     //control1: 
@@ -490,12 +503,12 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int ticket3 = env.getTemporary();
     int control1 = env.getLabel();
     int control2 = env.getLabel();
-    stmtAssignment(ticket1, "Eq(1 " + env.findVariableEnv(a) + ")");
-    stmtAssignment(ticket2, "Eq(2 " + env.findVariableEnv(b) + ")");
+    stmtAssignment(ticket1, "LtS(" + env.findVariableEnv(a) + " 1)");
+    stmtAssignment(ticket2, "LtS(" + env.findVariableEnv(b) + " 1)");
 
-    stmtIf0Goto(ticket1, control1);
+    stmtIfGoto(ticket1, control1);
     pushIndentation();
-    stmtIf0Goto(ticket2, control1);
+    stmtIfGoto(ticket2, control1);
     pushIndentation();
     stmtAssignment(ticket3, "1");
     popIndentation();
@@ -602,7 +615,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
 
     //pseudocode
     //ticket1 = [a]
-    //ticket2 = LtS(b ticket1) // b < ticket1, this is true if it isssss out of bounds
+    //ticket2 = LtS(b ticket1) // b < ticket1
     //if ticket2 goto: control1
     //  Error("Array out of bounds")
     //control1:
@@ -611,10 +624,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     //ticket5 = [ticket4+4]
     
     stmtMemoryAccess(ticket1, env.findVariableEnv(a));
-    stmtAssignment(ticket2, "LtS(" + env.findVariableEnv(b) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtAssignment(ticket2, "Lt(" + env.findVariableEnv(b) + " " + env.findVariableEnv(ticket1) + ")");
     stmtIfGoto(ticket2, control1);
     pushIndentation();
-    stmtPrint("Error(\"Array out of bounds\")");
+    stmtPrint("Error(\"array index out of bounds\")");
     popIndentation();
     stmtLabel(control1);
     stmtAssignment(ticket3, "MulS(" + env.findVariableEnv(b) + " 4)");
@@ -684,24 +697,6 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
       class_name = env.variable_map.get(a).class_name;
     }
 
-
-   
-    /*
-    System.out.println(a);
-    System.out.println(env.variable_map.keySet());
-    for (Integer v : env.variable_map.keySet()) {
-      String RAND = env.variable_map.get(v).identifier;
-      
-      System.out.printf(RAND + "   :   ");
-
-      System.out.println(env.variable_map.get(v).class_name);
-
-    }
-    System.out.println(class_name);
-    System.out.println(env.layout.get(class_name));
-    System.out.println(env.layout.get(class_name).virtual_table);
-    */
-    
 
 
     J2VClassLayout class_layout = env.layout.get(class_name);
@@ -878,6 +873,10 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     stmtAssignment(ticket, "HeapAllocZ(" + class_layout.size + ")");
     stmtMemoryAssignment(ticket, ":vmt_" + class_layout.id);
 
+    /*
+    System.out.println("class_name:" + class_name);
+    System.out.println(class_layout.size);
+    */
     _ret = ticket;
     return _ret;
   }
