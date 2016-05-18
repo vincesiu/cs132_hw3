@@ -637,8 +637,11 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    */
   public Integer visit(ArrayLength n) {
     Integer _ret=null;
-    //TODO
-    n.f0.accept(this);
+
+    int a = n.f0.accept(this);
+    int ticket = env.getTemporary();
+    stmtMemoryAccess(ticket, a);
+
     n.f1.accept(this);
     n.f2.accept(this);
     return _ret;
@@ -686,14 +689,15 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
       class_name = env.variable_map.get(a).class_name;
     }
 
-    System.out.println(a);
-    System.out.println(env.variable_map.keySet());
-    for (Integer v : env.variable_map.keySet()) {
-      System.out.println(env.variable_map.get(v).identifier);
-    }
-    System.out.println(class_name);
-    System.out.println(env.layout.get(class_name));
-    System.out.println(env.layout.get(class_name).virtual_table);
+
+    //System.out.println(a);
+    //System.out.println(env.variable_map.keySet());
+    //for (Integer v : env.variable_map.keySet()) {
+    //  System.out.println(env.variable_map.get(v).identifier);
+    //}
+    //System.out.println(class_name);
+    //System.out.println(env.layout.get(class_name));
+    //System.out.println(env.layout.get(class_name).virtual_table);
 
     int offset = env.layout.get(class_name).virtual_table.get(function_name);
 
