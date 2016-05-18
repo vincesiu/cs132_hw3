@@ -14,7 +14,6 @@ public class J2VEnv {
   
   //Used only in second pass
   int indentation_level;
-  int counter_id;
   int counter_label;
   int counter_temp;
   int counter_var;
@@ -30,8 +29,7 @@ public class J2VEnv {
     main_class = null;
 
     indentation_level = 0;
-    counter_id = 0;
-    counter_label = 0;
+    counter_label = 0; //Only one instance of a label allowed in the entire program woooot
     counter_temp = 0;
     counter_var = 0;
     variable_map = null;
@@ -168,7 +166,6 @@ public class J2VEnv {
     identifier_map = new HashMap<String, Integer>();
     counter_var = 0;
     counter_temp = 0;
-    counter_label = 0;
     int ticket;
     ticket = getIdentifier("this");
     variable_map.get(ticket).class_name = cur_class.id; 
@@ -184,7 +181,6 @@ public class J2VEnv {
     identifier_map = null;
     counter_var = 0;
     counter_temp = 0;
-    counter_label = 0;
   }
 
 

@@ -331,7 +331,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     
     //ticket1 = b * 4
     //ticket2 = [a]
-    //ticket3 = LtS(ticket2 ticket1) //ticket2 < ticket1, ie theres something WONG if this is true
+    //ticket3 = LtS(ticket1 ticket2) //ticket1 < ticket2
     //ticket4 = ticket1 + a
     //if ticket3 goto: control1
     //  Error("Array out of bounds")
@@ -340,7 +340,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     //[ticket5] = c
     stmtAssignment(ticket1, "MulS(" + env.findVariableEnv(b) + " 4)");
     stmtMemoryAccess(ticket2, env.findVariableEnv(a));
-    stmtAssignment(ticket3, "LtS(" + env.findVariableEnv(ticket2) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtAssignment(ticket3, "LtS(" + env.findVariableEnv(ticket1) + " " + env.findVariableEnv(ticket2) + ")");
     stmtAssignment(ticket4, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(ticket1) + ")");
     stmtIfGoto(ticket3, control1);
     pushIndentation();
@@ -376,7 +376,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     int control1 = env.getLabel();
     int control2 = env.getLabel();
 
-    stmtIfGoto(a, control1);
+    stmtIf0Goto(a, control1);
     pushIndentation();
     n.f4.accept(this);
     stmtGoto(control2);
@@ -418,7 +418,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     stmtLabel(control1);
     //Jump to end
     int a = n.f2.accept(this);
-    stmtIfGoto(a, control2);
+    stmtIf0Goto(a, control2);
     //Main Loop code
     n.f4.accept(this);
     //Jump to conditional
@@ -496,9 +496,9 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     stmtAssignment(ticket1, "Eq(1 " + env.findVariableEnv(a) + ")");
     stmtAssignment(ticket2, "Eq(2 " + env.findVariableEnv(b) + ")");
 
-    stmtIfGoto(ticket1, control1);
+    stmtIf0Goto(ticket1, control1);
     pushIndentation();
-    stmtIfGoto(ticket2, control1);
+    stmtIf0Goto(ticket2, control1);
     pushIndentation();
     stmtAssignment(ticket3, "1");
     popIndentation();
@@ -607,8 +607,8 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     //ticket1 = b * 4
     //ticket2 = a + ticket1
     //ticket3 = [a]
-    //ticket4 = LtS(ticket3 ticket1) // ticket3 < ticket1, this is true if it isssss out of bounds
-    //if0 ticket4 goto: control1
+    //ticket4 = LtS(ticket1 ticket3) // ticket1 < ticket3, this is true if it isssss out of bounds
+    //if ticket4 goto: control1
     //  Error("Array out of bounds")
     //control1:
     //ticket5 = [ticket2+4]
@@ -616,7 +616,7 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     stmtAssignment(ticket1, "MulS(" + env.findVariableEnv(b) + " 4)");
     stmtAssignment(ticket2, "Add(" + env.findVariableEnv(a) + " " + env.findVariableEnv(ticket1) + ")");
     stmtMemoryAccess(ticket3, env.findVariableEnv(a));
-    stmtAssignment(ticket4, "LtS(" + env.findVariableEnv(ticket3) + " " + env.findVariableEnv(ticket1) + ")");
+    stmtAssignment(ticket4, "LtS(" + env.findVariableEnv(ticket1) + " " + env.findVariableEnv(ticket3) + ")");
     stmtIfGoto(ticket4, control1);
     pushIndentation();
     indentVapor();
@@ -652,12 +652,26 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
    * f5 -> ")"
    */
   public Integer visit(MessageSend n) {
-    //TODO check out of bounds
-    //
     Integer _ret=null;
 
     int a = n.f0.accept(this);
+    //Error Checking Pseudocode:
+    ////////////////////
+    //if a goto control1
+    //  Error("null pointer")
+    //control1:
+    int control1 = env.getLabel();
 
+    stmtIfGoto(a, control1);
+    pushIndentation();
+    stmtPrint("Error(\"null pointer\")");
+    popIndentation();
+    stmtLabel(control1);
+    
+
+
+    //Normal Code
+    ////////////////////////
     int ticket1 = env.getTemporary();
     int ticket2 = env.getTemporary();
 
@@ -935,14 +949,24 @@ public class J2VParser extends GJNoArguDepthFirst<Integer> {
     System.out.println(env.findVariableEnv(label) + ":");
   }
 
-  void stmtIfGoto(int ticket, int label) {
+  void stmtIf0Goto(int ticket, int label) {
     indentVapor();
     System.out.println("if0 " + env.findVariableEnv(ticket) + " goto :" + env.findVariableEnv(label));
+  }
+
+  void stmtIfGoto(int ticket, int label) {
+    indentVapor();
+    System.out.println("if " + env.findVariableEnv(ticket) + " goto :" + env.findVariableEnv(label));
   }
 
   void stmtGoto(int label) {
     indentVapor();
     System.out.println("goto :" + env.findVariableEnv(label));
+  }
+
+  void stmtPrint(String input) {
+    indentVapor();
+    System.out.println(input);
   }
 
   void indentVapor() {
